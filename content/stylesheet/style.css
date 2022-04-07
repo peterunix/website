@@ -1,0 +1,126 @@
+@font-face {
+  font-family: 'SauceCodePro';
+  src: url('/sauce-code-nerd-font-complete.ttf');
+
+  font-family: 'Terminess';
+  src: url('/terminess-nerd-font-complete.ttf');
+}
+
+:root{
+    --font: SauceCodePro;
+    --bg-color: #222222;
+    --headline-color: #db7093;
+    --link-color: #db7093;
+    --text-color: #fefefe;
+    --text-font-size: 23px;
+    --code-font: Terminess;
+    --code-color: #fefefe;
+    --code-background: #333333;
+    --link-font-size: 18px;
+    --mobile-text-font-size: 18px;
+    --mobile-link-font-size: 18px;
+}
+
+body{
+    font-family: var(--font);
+    background-color: var(--bg-color);
+    margin: 10% 20%;
+}
+
+/*
+Change styling for index.html page
+*/
+body.index{
+    background-color: var(--bg-color);
+    margin: 10% 20%;
+}
+
+body.index>h1, body.index>h2{
+    text-align: center;
+}
+
+p{
+    font-size: var(--text-font-size);
+    color: var(--text-color);
+    white-space: normal;
+    word-wrap: break-word;
+}
+
+li{
+    color: var(--text-color);
+}
+
+a{
+    font-size: var(--link-font-size);
+    color: var(--link-color);
+}
+
+h1, h2, h3, h4, h5, h6{
+    padding-left: 0px;
+    color: var(--headline-color);
+}
+
+/*Color scheme for code blocks*/
+.shell, pre{
+    background: var(--code-background);
+    overflow-x: auto; /* Toggle horizontal scrollbar */
+    overflow-y: visible; /* Hide vertical scrollbar */
+    padding: 10px;
+}
+
+code{
+    font-family: var(--code-font);
+    color: var(--code-color);
+}
+
+/*Scrollbar theming*/
+::-webkit-scrollbar {
+    width: 8px;
+    background-color: #69706E;
+    -webkit-border-radius: 100px;
+}
+::-webkit-scrollbar:hover {
+    background-color: #79706E;
+    opacity: 1;
+}
+
+::-webkit-scrollbar-thumb:vertical {
+    background: #79706E;
+    -webkit-border-radius: 100px;
+}
+::-webkit-scrollbar-thumb:vertical:active {
+    background: #69706E;
+    -webkit-border-radius: 100px;
+}
+
+
+/*Styling for smaller screens*/
+@media screen and (max-width: 900px){
+    body{
+        margin: 0px;
+        font-size: var(--mobile-text-font-size);
+    }
+    body.index{
+        margin: 0px;
+        font-size: var(--mobile-text-font-size);
+    }
+    .grid-container{
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .grid-item{
+        margin: 0 0%;
+    }
+}
+
+@media screen and (min-width: 1000px){
+    .grid-container{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .grid-item{
+        margin: 10% 20%;
+    }
+}

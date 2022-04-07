@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#searx-installation">Searx Installation</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#dependencies">Dependencies</a></li>
+<li><a href="#creating-searx-container">Creating Searx container</a></li>
+<li><a href="#running-with-nginx">Running with Nginx</a></li>
+<li><a href="#starting-the-container-as-service">Starting the container as service</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="searx-installation">Searx Installation</h1>
+<h2 id="preface">Preface</h2>
+<p>I'm doing this on a Debian 10 server. The guide assumes you have root privledges.</p>
+<h2 id="dependencies">Dependencies</h2>
+<pre class="shell"><code>apt install docker docker.io nginx
+</code></pre>
+<h2 id="creating-searx-container">Creating Searx container</h2>
+<p>This pulls and starts the docker container, creating a web socket that's accessible via 127.0.0.1:8888. Normally this image creates a searx instance that's accessible via the servers public IP. We don't want this since we're going to be accessing the container through nginx.</p>
+<pre class="shell"><code>docker pull wonderfall/searx
+docker run -d --restart unless-stopped --name searx -p 127.0.0.1:8888:8888 wonderfall/searx
+</code></pre>
+<h2 id="running-with-nginx">Running with Nginx</h2>
+<p>Here we'll use [2]"proxy_pass" to send our clients requests to our docker container. This is done so we can set it up with a domain name and SSL - kinda like [3]this.</p>
+<pre class="shell"><code>vim /etc/nginx/sites-available/default
+
+# I appended the following:
+server {
+        listen 80;
+        server_name search.yourdomain.com;
+
+        location / {
+        proxy_pass http://127.0.0.1:8888;
+        }
+}
+</code></pre>
+<h2 id="starting-the-container-as-service">Starting the container as service</h2>
+<p>Our searx server should be up and running. Let's create a systemd service to start the container on boot.</p>
+<pre class="shell"><code>vim /etc/systemd/system/docker-searx.service
+
+[Unit]
+Description=Searx docker service
+Requires=docker.service
+After=docker.service
+
+[Service]
+ExecStart=/usr/bin/docker start -a searx
+ExecStop=/usr/bin/docker stop -t 2 searx
+
+[Install]
+WantedBy=default.target
+
+
+systemctl enable docker-searx
+systemctl start docker-searx
+systemctl status docker-searx
+</code></pre>
+<p>Searx should be up and running on "search.yourdomain.com". I recommend changing the access_log and error_log files to "/dev/null" in /etc/nginx/nginx.conf. Logs are for google.</p>
+<p>References</p>
+<ol>
+<li><a href="file:///opt/webNew/index.php">file:///opt/webNew/index.php</a></li>
+<li><a href="https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/">https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/</a></li>
+<li><a href="https://search.unixfandom.com/">https://search.unixfandom.com/</a></li>
+</ol>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

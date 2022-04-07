@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#securing-remote-users">Securing remote users</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#ssh-keys">SSH keys</a></li>
+<li><a href="#ssh-key-generation">SSH key generation</a></li>
+<li><a href="#restrict-user-commands">Restrict user commands</a></li>
+<li><a href="#changing-shell">Changing shell</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="securing-remote-users">Securing remote users</h1>
+<h2 id="preface">Preface</h2>
+<p>A general guide on securing remote user accounts. Here's the rundown:</p>
+<p>Generate SSH keys for secure authentication</p>
+<p>Restrict user command access</p>
+<p>Changing user shell</p>
+<h2 id="ssh-keys">SSH keys</h2>
+<p>Using key based authentication over password based authentication completely eliminates attackers from being able to remotely log into our machine over ssh. SSH keys will require the individual to have access to the generated key file in order to login. A long and complicated password is also sufficient security-wise. I recommened using a passphrase of several random words strung together.</p>
+<h2 id="ssh-key-generation">SSH key generation</h2>
+<p>This command will generate two files. An ssh public key and an ssh private key. We'll upload the public key to our server and then login using our private key. By default, this command generates the keys in the "~/.ssh/" directory.</p>
+<pre><code># Generating the key pair
+ssh-keygen -t rsa  -b 4096
+
+# Copying the public key file
+ssh-copy-id -i /path/to/idrsa.pub user@10.0.0.1
+
+# Verifying it works
+ssh -i /path/to/idrsa user@10.0.0.1
+user&gt; echo &quot;IT WORKS!!!&quot;
+</code></pre>
+<p>We also want to disable password based authentication in our ssh config</p>
+<pre><code>vim /etc/ssh/sshd_config
+# Add/modify the lines
+PermitRootLogin no
+PubkeyAuthentication yes
+PasswordAuthentication no
+
+systemctl restart sshd
+</code></pre>
+<p>Add the following if you only want to allow a ssh access to a specific user:</p>
+<pre><code>AllowUsers username
+</code></pre>
+<h2 id="restrict-user-commands">Restrict user commands</h2>
+<p>In the event that an attacker gains access to our user account, we want to restrict any possible vulnerabilities that could lead to privledge escalation. Since we generally only work as a root user when configuring our servers, we'll only allow our user access to the "su" command and nothing more. We'll create a bash profile and change the user's path variable. We'll restrict it permitting read and execute permissions.</p>
+<pre><code>cd /home/user
+mkdir programs
+export PATH=~/programs /user/home/.bashrc
+
+# Symbolically linking our program
+ln -s /usr/bin/su /home/user/programs/
+
+# Giving the user only read and execute permissions on the newly create files
+chown -R root:user programs .bash_profile
+chmod -R 0750 programs .bash_profile
+</code></pre>
+<p>Now you're restricted to only using the "su" command when logging into the user.</p>
+<h2 id="changing-shell">Changing shell</h2>
+<p>Depending on your use case, it is also beneficial to change the users shell. You can change the shell to something like "/sbin/nologin" to disable logins, or rbash. Rbash stands for "restricted bash". In a nutshell, it's bash with restricted shell functions.</p>
+<pre><code>usermod -s /usr/bin/rbash user
+</code></pre>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

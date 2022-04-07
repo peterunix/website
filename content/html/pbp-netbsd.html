@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#installing-netbsd-on-the-pinebook-pro">Installing Netbsd on the Pinebook Pro</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#configuring-network">Configuring Network</a></li>
+<li><a href="#configuring-package-manager">Configuring package manager</a></li>
+<li><a href="#installing-a-desktop-enviroment">Installing a desktop enviroment</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="installing-netbsd-on-the-pinebook-pro">Installing Netbsd on the Pinebook Pro</h1>
+<h2 id="preface">Preface</h2>
+<p>I'm going to assume that you've already copied the [1]netbsd image to your device and have booted into your system. If you have problems booting from the microsd card, try disabling the emmc chip. It used to be the case that you were only able to boot from microsd if the chip was disabled. I'm not sure if this was fixed.</p>
+<h2 id="configuring-network">Configuring Network</h2>
+<p>There are two ways of doing this:</p>
+<ol>
+<li>Manually configuring wpa_supplicant</li>
+<li>Using wpa_cli (frontend to wpa_supplicant)</li>
+</ol>
+<p>We're going to go over the manual method of setting up the network. If you want to use wpa_cli, here's a [2]link to the arch wiki page.</p>
+<p>Let's identify our interface</p>
+<pre class="shell"><code>ifconfig
+&gt; lo0 flags....
+&gt; run0: flags..... &lt;---- Substitute this interface for yours when referenced
+</code></pre>
+<p>Next we setup wpa_supplicant and dhcpcd to run at boot.</p>
+<pre class="shell"><code>$ vi /etc/rc.conf
+#Append the following
+dhcpcd=YES
+dhcpcd_flags=&quot;${dhcpcd_flags} -b&quot;  #This ensures boot wont hang when network isn&#39;t present
+wpa_supplicant=YES
+wpa_supplicant_flags=&quot;-B -i run0 -c /etc/wpa_supplicant.conf&quot;
+</code></pre>
+<p>Next we can add our network to /etc/wpa_supplicant.conf</p>
+<pre class="shell"><code>$ vi /etc/wpa_supplicant.conf
+ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=wheel
+update_config=1
+network={
+        ssid=&quot;my favourite network&quot;
+        psk=&quot;hunter2&quot;
+}
+
+# Starting wpa_supplicant
+/etc/rc.d/wpa_supplicant start
+</code></pre>
+<p>shell</p>
+<h2 id="configuring-package-manager">Configuring package manager</h2>
+<p>Netbsd has a commented URL for downloading binary packages in ~/.profile. Let's uncomment it</p>
+<pre class="shell"><code>$ vi ~/.profile
+export PKG_PATH=&quot;https://...&quot;
+</code></pre>
+<p>I believe at this point you have to log out and log back in, so the .profile is sourced again. I just gave it a reboot instead. Let's install the "pkgin" package manager now.</p>
+<pre class="shell"><code>pkg_add -v pkgin
+pkgin update
+
+&quot;Warning earm doesn&#39;t match your current architecture....&quot;
+Still want to proceed? [y/N]
+</code></pre>
+<p>Stop here. We have to make sure our architecture is set correctly, or else packages won't install properly. Fortunatley this is pretty simple.</p>
+<pre class="shell"><code># Note how I overwrote the file.
+# If you choose to instead append the text, make sure you edit repositories.conf to delete the original url
+
+$ echo $PKG_PATH &gt; /usr/pkg/etc/pkgin/repositories.conf
+</code></pre>
+<h2 id="installing-a-desktop-enviroment">Installing a desktop enviroment</h2>
+<pre class="shell"><code>pkgin install xfce4 xinit
+
+# We have to link our X system so xinit can read from it.
+ln -s /usr/X11R7/bin/X /usr/pkg/bin/X
+
+# We add xfce4-session to our .xinitrc
+echo &quot;exec xfce4-session&quot; &gt; ~/.xinitrc
+
+# Finally we can boot into our desktop enviroment
+startx
+</code></pre>
+<p>shell</p>
+<p>Give XFCE4 a moment to load in. Alt+f1 will bring you back to the tty prompt. Alt+f2 will bring you to the gui</p>
+<p>References</p>
+<ol>
+<li><a href="https://wiki.pine64.org/index.php/Pinebook_Pro_Software_Release#NetBSD_.5BmicroSD_.2FeMMC_Boot.5D">https://wiki.pine64.org/index.php/Pinebook_Pro_Software_Release#NetBSD_.5BmicroSD_.2FeMMC_Boot.5D</a></li>
+<li><a href="https://wiki.archlinux.org/index.php/Wpa_supplicant#Connecting_with_wpa_cli">https://wiki.archlinux.org/index.php/Wpa_supplicant#Connecting_with_wpa_cli</a></li>
+</ol>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

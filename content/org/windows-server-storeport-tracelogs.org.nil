@@ -1,0 +1,17 @@
+* Storport trace
+It provides a measure of time delay (latency) for requests made to a system’s disk unit. The measurements are taken form the Storport.sys driver, the lowest Microsoft component in the Storage Stack. This means It only includes the latency for the components BELOW the Storport driver, normally they only include:
+The Storage Adapter Miniport Driver (Hardware device driver)
+The hardware layers (Storage Controller, Cables, Disk, etc)
+
+https://www.youtube.com/watch?v=B-ATCabF2xI
+| Application       |                                                                                                                                                                                  |
+|-------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| I/O Subsystem     | Sends I/O request to FS                                                                                                                                                          |
+| File System       | Imposes file structure on raw volumes                                                                                                                                            |
+| Volume Manager    | Presents volumes (C: D:) to users; supports basic and dynamic disks (RAID)                                                                                                       |
+| Partition Manager | Manages disk partitions                                                                                                                                                          |
+|-------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Class             | Manages a specific device type, such as disks, tapes, etc                                                                                                                        |
+| Port + Miniport   | Port: Manages a specific transport (Storport for RAID, FC, SCSI, etc). Miniport: Vendor supplied; functionally linked to specific port driver; manages hardware specific details |
+|-------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Disk Subsystem  |                                                                                                                                                                                  |

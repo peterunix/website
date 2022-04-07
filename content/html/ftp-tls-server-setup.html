@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#setting-up-an-ftp-over-tls">Setting up an FTP over TLS</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#dependencies">Dependencies</a></li>
+<li><a href="#creating-ssl-certificate">Creating SSL certificate</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#adding-a-new-ftp-user">Adding a new FTP user</a></li>
+<li><a href="#restartingenabling-the-service">Restarting/Enabling the service</a></li>
+<li><a href="#connecting-using-lftp">Connecting using lftp</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="setting-up-an-ftp-over-tls">Setting up an FTP over TLS</h1>
+<h2 id="preface">Preface</h2>
+<p>Here's me documenting how to setup VSFTP on a home server. I'm using a self-signed SSL certificate along with the <em>lftp</em> client to connect to the server.</p>
+<h2 id="dependencies">Dependencies</h2>
+<p><em>Very Secure FTP Daemon</em> (server)</p>
+<pre><code>apt install vsftpd
+</code></pre>
+<p>Install <em>lftp</em> on the client machine to access FTPS</p>
+<pre><code>apt install lftp
+</code></pre>
+<h2 id="creating-ssl-certificate">Creating SSL certificate</h2>
+<p>SSL will provide encryption for file transfers and logins.</p>
+<pre><code>mkdir -p /etc/vsftpd/ssl
+openssl req -x509 -nodes -newkey rsa:2048 -keyout /etc/vsftpd/ssl/vsftpd.key -out /etc/vsftpd/ssl/vsftpd.pub -days 5000
+</code></pre>
+<h2 id="configuration">Configuration</h2>
+<p>I copied and tweaked the config from another website. Truth be told, I don't know what every option does.</p>
+<pre><code># Add this to the new /etc/vsftpd.conf
+
+listen=YES
+listen_ipv6=NO
+anonymous_enable=NO
+local_enable=YES
+write_enable=YES
+local_umask=022
+dirmessage_enable=YES
+use_localtime=YES
+xferlog_enable=YES
+connect_from_port_20=YES
+chroot_local_user=YES
+secure_chroot_dir=/var/run/vsftpd/empty
+pam_service_name=vsftpd
+pasv_enable=YES
+pasv_min_port=10000
+pasv_max_port=10100
+allow_writeable_chroot=YES
+rsa_cert_file=/etc/vsftpd/ssl/vsftpd.pem
+rsa_private_key_file=/etc/vsftpd/ssl/vsftpd.pem
+ssl_enable=YES
+force_local_data_ssl=YES
+force_local_logins_ssl=YES
+ssl_tlsv1=YES
+ssl_sslv2=NO
+ssl_sslv3=NO
+require_ssl_reuse=YES
+ssl_ciphers=HIGH
+userlist_enable=YES
+userlist_file=/etc/vsftpd.userlist
+userlist_deny=NO
+</code></pre>
+<h2 id="adding-a-new-ftp-user">Adding a new FTP user</h2>
+<p>This will be the only user that has FTP access.</p>
+<pre><code>useradd -m ftpuser
+passwd ftpuser
+</code></pre>
+<p>Append the user to the vsftpd.userlist</p>
+<pre><code>echo &quot;ftpuser&quot; &gt;&gt; /etc/vsftpd.userlist
+</code></pre>
+<h2 id="restartingenabling-the-service">Restarting/Enabling the service</h2>
+<pre><code>systemctl restart vsftpd
+systemctl enable vsftpd
+</code></pre>
+<h2 id="connecting-using-lftp">Connecting using lftp</h2>
+<p>We need to save the certificate on the client machine and then configure lftp to use it.</p>
+<pre><code>echo | \
+    openssl s_client -showcerts -connect IPADDRESS:21 -starttls ftp 2&gt; /dev/null | \
+    sed -n &#39;/BEGIN CERTIFICATE/,/END CERTIFICATE/p&#39; &gt; ~/.config/lftp/mycert.crt
+
+# Adding it to our local lftp config
+cat &lt;&lt; EOF &gt;&gt; ~/.config/lftp/rc
+set ssl:ca-file &quot;~/.config/lftp/mycert.crt&quot;
+set ssl:check-hostname no
+EOF
+</code></pre>
+<p>Here's how I connect to it via the CLI</p>
+<pre><code>lftp ftpuser@10.0.0.34
+</code></pre>
+<p>Alternatively you can use filezilla</p>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

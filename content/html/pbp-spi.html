@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#booting-from-nvme-with-spi-flash">Booting from NVME with SPI Flash</a><ul>
+<li><a href="#warning">WARNING</a></li>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#downloading-files">Downloading files</a></li>
+<li><a href="#flashing-the-spi">Flashing the SPI</a></li>
+<li><a href="#important-details">Important details</a></li>
+<li><a href="#boot-order">Boot order</a></li>
+<li><a href="#references">References</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="booting-from-nvme-with-spi-flash">Booting from NVME with SPI Flash</h1>
+<h2 id="warning">WARNING</h2>
+<p>Be prepared to recover your broken SPI flash if an error occurs. When a binary is written to the SPI flash, the SPI flash will be what chooses which drives to boot from. Any problems when writing to the SPI can render your machine soft bricked. Learn about the SPI flash and recovery options here:</p>
+<h2 id="preface">Preface</h2>
+<p>This guide is a simpler rewrite of [7]pcm72's forum post. I'd recommend reading that whole thread before proceeding. We're going to be flashing the Pinebook Pro's SPI flash so that it contains boot code for the nvme. Your kernel needs to be compiled with SPI support. A simple check will be to see if /dev/mtd0 exists. I'm using Manjaro Arm.</p>
+<h2 id="downloading-files">Downloading files</h2>
+<p>You can either download them from [8]pcm72's git release Or you can download them from my [9]website. The ones from my website will be the same that I'm using for this tutorial.</p>
+<h2 id="flashing-the-spi">Flashing the SPI</h2>
+<p>This is all you have to do:</p>
+<pre class="shell"><code>dd if=spiflash.bin of=/dev/mtd0 status=progress
+</code></pre>
+<h2 id="important-details">Important details</h2>
+<p>In pc72's post, he explained why booting from micro-sd will fail. You basically have to remove all boot code from your micro-sd to have the SPI boot from it.</p>
+<p>Here's how you do that:</p>
+<pre class="shell"><code>dd if=/dev/zero bs=32k seek=1 count=1 of=&lt;microSD&gt;
+dd if=/dev/zero bs=64k seek=128 count=64 of=&lt;microSD&gt;
+dd if=/dev/zero bs=64k seek=192 count=64 of=&lt;microSD&gt;
+</code></pre>
+<h2 id="boot-order">Boot order</h2>
+<ol>
+<li>micro-sd</li>
+<li>nvme</li>
+<li>emmc</li>
+</ol>
+<p>I'm not sure if it's capable of USB boot.</p>
+<h2 id="references">References</h2>
+<ol>
+<li><a href="https://wiki.pine64.org/index.php/Pinebook_Pro_SPI">https://wiki.pine64.org/index.php/Pinebook_Pro_SPI</a></li>
+<li><a href="https://wiki.pine64.org/index.php/Pinebook_Pro#Using_the_SPI_flash_device">https://wiki.pine64.org/index.php/Pinebook_Pro#Using_the_SPI_flash_device</a></li>
+<li><a href="https://forum.pine64.org/showthread.php?tid=8439">https://forum.pine64.org/showthread.php?tid=8439</a></li>
+<li><a href="https://github.com/pcm720/rockchip-u-boot/releases">https://github.com/pcm720/rockchip-u-boot/releases</a></li>
+<li><a href="https://unixfandom.com/files">https://unixfandom.com/files</a></li>
+</ol>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

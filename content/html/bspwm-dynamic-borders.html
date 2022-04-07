@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#bspwm-dynamic-borders">BSPWM Dynamic Borders</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#example">Example</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="bspwm-dynamic-borders">BSPWM Dynamic Borders</h1>
+<h2 id="preface">Preface</h2>
+<p>Dynamically change the border size when there is either a single node or multiple nodes on the focused desktop</p>
+<p>Add "/path/to/script &amp;" to your BSPWMRC to make use of this script</p>
+<pre class="shell"><code>#!/bin/sh
+# Border size when there is one node on desktop and when there are multiple node
+s
+single_node=&quot;0&quot;
+multi_node=&quot;3&quot;
+
+# Create named pipe
+dynamicborder_fifo=&#39;/tmp/dynamic-border.fifo&#39;
+[ -e &quot;$dynamicborder_fifo&quot; ] &amp;&amp; rm &quot;$dynamicborder_fifo&quot;
+mkfifo &quot;$dynamicborder_fifo&quot;
+
+# Subscribe to bspc events
+bspc subscribe desktop &gt; &quot;$dynamicborder_fifo&quot; &amp;
+bspc subscribe node &gt; &quot;$dynamicborder_fifo&quot; &amp;
+
+# Change border size if there is one node or multiple nodes on focused desktop
+_DynamicBorder(){
+        focused=$(bspc query -D --names -d focused)
+        node=$(bspc query -N -d $focused | wc -l)
+        [ $node -eq 1 ] &amp;&amp; bspc config border_width $single_node || bspc config border_width $multi_node
+}
+
+# Reading stdin from named pipe
+_Main(){
+        while read -r report; do
+                case $report in
+                        *) _DynamicBorder;;
+                esac
+        done
+}
+
+_Main &lt; &quot;$dynamicborder_fifo&quot;
+</code></pre>
+<h2 id="example">Example</h2>
+<p>Here's a gif showcasing how it works</p>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

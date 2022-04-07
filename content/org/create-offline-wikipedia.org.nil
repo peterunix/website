@@ -1,0 +1,34 @@
+* Setting up media wiki with offline wiki's
+** Preface
+Here's how to download an offline copy of most wikipedias.
+I'll be using the wiki dump tools from https://github.com/WikiTeam/wikiteam to download them.
+
+** Installation
+Mediawiki sources
+#+begin_src shell
+apt install -y python-pip libxml2-dev libxslt1-dev
+
+git clone --depth=1 https://github.com/WikiTeam/wikiteam.git
+cd wikiteam
+
+pip install lxml
+pip install --upgrade -r requirements.txt
+#+end_src
+
+** Offline wikipedia reader
+apt install python3-pip
+pip3 install poetry
+poetry install --no-dev
+** Downloading a wiki
+I'd suggest reading the github page for more examples
+
+https://github.com/WikiTeam/wikiteam
+
+#+begin_src shell
+# Download the Gentoo wiki to a path
+python dumpgenerator.py http://wiki.gentoo.org --xml --images --path /mnt/data/wiki/gentoo
+
+# Resume a wiki download
+python dumpgenerator.py --api=http://wiki.gentoo.org/ --xml --images --resume --path=/path/to/incomplete-dump
+#+end_src
+

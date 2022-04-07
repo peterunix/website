@@ -1,0 +1,25 @@
+* Halo CE installation
+
+** Prerequisites
+A copy of Halo Combat evolved.
+
+** DLLs
+Manually download [1]mfc42.dll and place it in ~/.wine/drive_c/[...]/system32/
+Installing it via winetricks didn't work for me. Manually adding the file worked just fine.
+
+** Run Halo
+#+begin_src shell
+WINEARCH=win32 halosetup.exe
+WINEARCH=win32 ~/.wine/[...]/halo.exe
+#+end_src
+
+** Troubleshooting
+*** "My audio isn't working"
+Install "lib32-alsa-plugins lib32-libpulse lib32-openal" if you haven't
+already. I had this problem with pulseaudio.
+
+*** "It just doesn't work"
+Explicitly set the WINEARCH variable before running it. Hopefully this fixes the problem
+
+References
+1. http://www.dlldownloader.com/mfc42-dll/

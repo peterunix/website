@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#letsencrypt-with-nginx">Letsencrypt with nginx</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#usage">Usage</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="letsencrypt-with-nginx">Letsencrypt with nginx</h1>
+<h2 id="preface">Preface</h2>
+<p>Letsencrypt is a service/tool which allows you to generate free,trusted, ssl certificates. On it's own, it only generates the certificates and does nothing more. Assuming we've installed the necessary packages, we can use "certbot" and it's nginx plugin to automatically configure our web server with SSL.</p>
+<h2 id="installation">Installation</h2>
+<pre class="shell"><code>apt install certbot python-certbot-nginx
+</code></pre>
+<h2 id="usage">Usage</h2>
+<p>–nginx: Use the nginx plugin to automatically install the certificates to our web server</p>
+<p>-d &lt;domain&gt;: Include these domains when creating the certificate</p>
+<pre class="shell"><code>certbot --nginx -d domain.com -d www.domain.com -d search.domain.com
+</code></pre>
+<p>Rolling back the nginx modifications</p>
+<pre class="shell"><code>certbot --nginx rollback
+</code></pre>
+<p>Certificate location</p>
+<pre class="shell"><code>/etc/letsencrypt/live/domain/fullchain.pem
+/etc/letsencrypt/live/domain/privkey.pem
+</code></pre>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

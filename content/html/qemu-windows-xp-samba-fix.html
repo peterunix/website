@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#fix-samba-not-working-windows-xp">Fix: Samba not working Windows XP</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#enabling-nt1-support">Enabling NT1 support</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="fix-samba-not-working-windows-xp">Fix: Samba not working Windows XP</h1>
+<h2 id="preface">Preface</h2>
+<p>Windows XP samba shares require some extra tweaking to get working with qemu. We have enable a older and deprecated protocol for SMB shares in the temporary smb.conf that qemu creates. This file can be edited while the system is running</p>
+<h2 id="enabling-nt1-support">Enabling NT1 support</h2>
+<p>You have to add the "min protocol = NT1" line to the global section of temporary samba file. If you wait until the machine is booted to modify the file, then a restart will be required. The values of the smb.conf are hardcoded, so the best course of action would be to add this line to a script</p>
+<pre><code>qemu-system-x86_64 [...] &amp;
+
+# Editing the configuration file while the VM is booting
+sed -e &#39;s/\[qemu\]/min protocol = NT1\n\[qemu\]/&#39; -i /tmp/qemu-smb.*/smb.conf
+</code></pre>
+<p>The new smb settings should be set before the operating system fully initializes. If you still can't access your shares, reboot the VM. I'm mapping the network share by right-clicking "my computer" in the windows search bar.</p>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

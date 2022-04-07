@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<p>Unixfandom.com penguin_gif</p>
+<p>Troubleshooting PBP problems</p>
+<p>Preface</p>
+<p>I'm addressing common problem with the pbp more than anything. Go down the list until you find something that's relevant to you.</p>
+<p>Powerkey shuts off machine</p>
+<p>The powerkey is not in the most ideal locations. Edit /etc/systemd/logind.conf and change "HandlePowerKey=poweroff" to "HandlePowerKey=ignore"</p>
+<p>Can't boot at all after flashing EMMC</p>
+<p>You could either use an emmc to usb adapter to reflash your EMMC (LAME). You could use your official pine64 UART cable to see if you could fix the problem that way (EH). The third option is that you carefully remove the pinebooks back plate with the display opened. It's important to open the display before removing the back panel to prevent the flimsy plastic or chassis from cracking (yup, that could happen). Once opened, flip the emmc switch to disable the emmc ([1]reference). With the laptop still open, begin the booting from your microsd. Once you see the LED turn green, quickly flip the switch to turn on the emmc again. Since the EMMC is not present, the pinebook first boots from the micro-sd. Our goal is to turn on the EMMC early on in the kernel's boot up phase, so this way the emmc gets recognized. If you flip the switch to late, the EMMC will not appear as a drive. Once booted, you could either reflash a new pinebook image or remove the bootloader from the emmc.</p>
+<p>Removing the bootloader</p>
+<p>Uboot resides within the first 35 or so megabytes of the drive. This is why you end up seeing free space preceding the boot partition of your drive. Without this free space, uboot would be overwriting your bootfiles, so it's important you add it if you're ever doing any manual partitioning (i.e installing Gentoo). I'm including two methods. The first blindly overwrites the beginning of the drive - potentially damaging the boot partition. The second specifically removes the parts of the drive containing uboot, keeping your boot parition safe. If you don't care about being able to boot from the emmc, use the first method.</p>
+<p>dd if=/dev/zero of=/dev/BLKDEV bs=1M count=35 conv=fsync</p>
+<p>dd if=/dev/zero of=/dev/BLKDEV bs=32k seek=1 conv=fsync &amp;&gt;/dev/null dd if=/dev/zero of=/dev/BLKDEV bs=64k seek=128 conv=fsync &amp;&gt;/dev/null dd if=/dev/zero of=/dev/BLKDEV bs=64k seek=192 conv=fsync &amp;&gt;/dev/null</p>
+<p>Flashing the bootloader</p>
+<p>Loose screws that fall out</p>
+<p>Some people reported that their screws to the bottom plate would fall out after sometime. I've never experienced this, but I still took the liberty of preventing it from happening. Go to the auto parts section of any store and get yourself either low strength or medium strength threadlocker. Avoid getting high strength threadlocker since you obviously still want to be able to easily unscrew them in the future. Add that to your Pinebook Pro's screws and you're good to go. I used Permatex Threadlocker Blue (Medium Strength) 24200 which I bought from Walmart. It works just fine.</p>
+<p>(blinking) Red light and not booting</p>
+<p>Pretty sure this is indicative of a kernel panic. Nothing will be displayed on the screen. The only way to tell what's going on is to use the UART cable for the pinebook pro. Buy it if you don't have it. It's useful.</p>
+<p>Damaged thermal pad. Getting a replacement.</p>
+<p>Purchase yourself a 4mm thermal pad from Amazon and you'll be all set. Cut a 1 inch by 1 inch square.</p>
+<p>References</p>
+<ol>
+<li><a href="https://wiki.pine64.org/wiki/Pinebook_Pro#Key_Internal_Parts">https://wiki.pine64.org/wiki/Pinebook_Pro#Key_Internal_Parts</a></li>
+</ol>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

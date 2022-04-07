@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#nginx-with-php">Nginx with PHP</a><ul>
+<li><a href="#dependencies">Dependencies</a></li>
+<li><a href="#setting-up-php-and-nginx-services">Setting up php and nginx services</a></li>
+<li><a href="#adding-php-to-nginx">Adding PHP to nginx</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="nginx-with-php">Nginx with PHP</h1>
+<h2 id="dependencies">Dependencies</h2>
+<p>$ apt install nginx php php-fpm</p>
+<h2 id="setting-up-php-and-nginx-services">Setting up php and nginx services</h2>
+<p>The cgi.fix_pathinfo variable tells PHP to attempt to execute the closest file it can find if the requested PHP file cannot be found. Let's set this variable to false.</p>
+<pre class="shell"><code>vim /etc/php/7.3/fpm/php.ini
+
+# Edit this variable
+cgi.fix_pathinfo=0
+
+systemctl start nginx php7.3-fpm
+systemctl enable nginx php7.3-fpm
+</code></pre>
+<h2 id="adding-php-to-nginx">Adding PHP to nginx</h2>
+<p>This goes in /etc/nginx/sites-enabled/WEBSITE</p>
+<pre class="shell"><code>server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.php index.html index.htm index.nginx-debian.html;
+
+    server_name server_domain_or_IP;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php7.3-fpm.sock;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+</code></pre>
+<p>References</p>
+<ol>
+<li><a href="file:///opt/webNew/index.php">file:///opt/webNew/index.php</a></li>
+</ol>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

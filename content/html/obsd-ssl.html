@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#letsencrypt-with-openbsd">Letsencrypt with OpenBsd</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#setting-things-up">Setting things up</a></li>
+<li><a href="#editing-the-config">Editing the config</a></li>
+<li><a href="#generating-the-cert">Generating the cert</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="letsencrypt-with-openbsd">Letsencrypt with OpenBsd</h1>
+<h2 id="preface">Preface</h2>
+<p>Installing ssl certificates is a breeze with OpenBsd. We'll use acme-client to generate our certs. I'm asssuming that you've already added your servers ip to your domain's dns records.</p>
+<h2 id="setting-things-up">Setting things up</h2>
+<p>There ain't too much to do here. We'll add our domain name to acme-client's config and then start the httpd web server. The acme client creates a file in <em>var/www/acme</em> which is accessible over the webserver. This file is then transmitted to Let's Encrypt. Let's Encrypt then attempts to download this file from our domain (<a href="http://example.com/path/to/file">http://example.com/path/to/file</a>). If the file is the same as the file sent from our localmachine, then Let's Encrypt knows that our server is legitamite and not a bad actor posing as the owner of the domain.</p>
+<pre><code># Copy config file
+cp /etc/example/acme-client.conf /etc/
+
+# Start the webserver
+rcctl -f start httpd
+</code></pre>
+<h2 id="editing-the-config">Editing the config</h2>
+<p>I don't need to explain anything here. Just replace "example.com" with your domain name in /etc/acme-client.configuration. It should look somethings like this:</p>
+<pre class="shell"><code>#
+# $OpenBSD: acme-client.conf,v 1.4 2020/09/17 09:13:06 florian Exp $
+#
+authority letsencrypt {
+        api url &quot;https://acme-v02.api.letsencrypt.org/directory&quot;
+        account key &quot;/etc/acme/letsencrypt-privkey.pem&quot;
+}
+
+authority letsencrypt-staging {
+        api url &quot;https://acme-staging-v02.api.letsencrypt.org/directory&quot;
+        account key &quot;/etc/acme/letsencrypt-staging-privkey.pem&quot;
+}
+
+authority buypass {
+        api url &quot;https://api.buypass.com/acme/directory&quot;
+        account key &quot;/etc/acme/buypass-privkey.pem&quot;
+        contact &quot;mailto:me@example.com&quot;
+}
+
+authority buypass-test {
+        api url &quot;https://api.test4.buypass.no/acme/directory&quot;
+        account key &quot;/etc/acme/buypass-test-privkey.pem&quot;
+        contact &quot;mailto:me@example.com&quot;
+}
+
+domain unixfandom.com {
+       alternative names { secure.example.com }
+        domain key &quot;/etc/ssl/private/unixfandom.com.key&quot;
+        domain full chain certificate &quot;/etc/ssl/unixfandom.com.fullchain.pem&quot;
+        sign with letsencrypt
+}
+</code></pre>
+<h2 id="generating-the-cert">Generating the cert</h2>
+<p>One thing I haven't tested is having more than one alternative domain listed. I'm not sure if you separate the domains by space or comma - I should test this…</p>
+<pre class="shell"><code>acme-client unixfandom.com
+
+# Cert path
+/etc/ssl/unixfandom.com.key
+/etc/ssl/unixfandom.com.fullchain.pem
+</code></pre>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

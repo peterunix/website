@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#setting-up-nfs-share-in-debain-linux">Setting up NFS share in Debain Linux</a><ul>
+<li><a href="#dependencies">Dependencies</a></li>
+<li><a href="#generating-share">Generating share</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="setting-up-nfs-share-in-debain-linux">Setting up NFS share in Debain Linux</h1>
+<h2 id="dependencies">Dependencies</h2>
+<pre class="shell"><code>apt install nfs-kernel portmap
+</code></pre>
+<h2 id="generating-share">Generating share</h2>
+<p>Edit /etc/exports</p>
+<pre class="shell"><code>/media/nfs              192.168.1.0/24(rw,sync,no_subtree_check)
+/media/nfs              192.168.1.112(rw,sync,no_subtree_check) 192.168.1.121(ro,sync,no_subtree_check)
+</code></pre>
+<p>ro: Specifies that the directory may only be mounted as read only</p>
+<p>rw: Grants both read and write permissions on the directory</p>
+<p>no_rootsquash: Root squash is an extremely dangerous option that allows remote “root” users the same privilege as the “root” user of the host machine</p>
+<p>subtree_check: In the case of a directory being exported instead of an entire filesystem, the host should verify the location of files and directories on the host filesystem</p>
+<p>no_subtreecheck: Specifies that the host should not check the location of the files being accessed withing the host filesystem</p>
+<p>sync: This just ensures that the host keeps any changes uploaded to the shared directory in sync</p>
+<p>async: Ignores synchronization checks in favor of increased speed</p>
+<pre class="shell"><code>systemctl restart nfs-kernel-server
+</code></pre>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

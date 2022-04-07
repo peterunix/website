@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#custom-keymap-and-font-in-tty">Custom keymap and font in TTY</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#custom-keymap-tty">Custom keymap TTY</a><ul>
+<li><a href="#dependencies">Dependencies</a></li>
+<li><a href="#copying-the-us-qwerty-keymap">Copying the US qwerty keymap</a></li>
+<li><a href="#listing-keycode-of-a-keypress">Listing keycode of a keypress</a></li>
+<li><a href="#modifying-the-keymap">Modifying the keymap</a></li>
+</ul></li>
+<li><a href="#custom-font-tty">Custom font TTY</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="custom-keymap-and-font-in-tty">Custom keymap and font in TTY</h1>
+<h2 id="preface">Preface</h2>
+<p>Generating a custom keymap in the TTY as well as setting a custom font. I'll be setting the caps and menu key as a CTRL modifier.</p>
+<h2 id="custom-keymap-tty">Custom keymap TTY</h2>
+<h3 id="dependencies">Dependencies</h3>
+<p>Console-data contains (amongst other things) a collection of keymaps. We'll copy the us qwerty keymap, modify it, then load it.</p>
+<pre class="shell"><code>sudo apt install console-common console-data
+</code></pre>
+<h3 id="copying-the-us-qwerty-keymap">Copying the US qwerty keymap</h3>
+<p>We'll edit this file later.</p>
+<pre class="shell"><code>zcat /usr/share/keymaps/i386/qwerty/us.kmap.gz &gt; us.kmap
+</code></pre>
+<h3 id="listing-keycode-of-a-keypress">Listing keycode of a keypress</h3>
+<p>Run <em>showkey</em> to display the keycode for each key you press. Wait 10 seconds without pressing a single key to exit the program.</p>
+<p>Here's the output when I press the Caps and Menu key:</p>
+<pre class="shell"><code>keycode 58 press
+keycode 58 release
+keycode 127 press
+keycode 127 release
+</code></pre>
+<h3 id="modifying-the-keymap">Modifying the keymap</h3>
+<p>Edit the us.kmap file we copied.</p>
+<p>I searched for the keycode for the Caps key and changed the value to Control</p>
+<pre class="shell"><code># Original caps key
+keycode 58 = Caps
+
+# Modified
+keycode 58 = Control
+</code></pre>
+<p>The keycode 127 wasn't listed so I appended it to the bottom of the file:</p>
+<pre class="shell"><code>keycode 127 = Control
+</code></pre>
+<h2 id="custom-font-tty">Custom font TTY</h2>
+<p>Edit /etc/default/console-setup and modify the following variables:</p>
+<pre class="shell"><code>FONTFACE=&quot;TerminessTTF Nerd Font Mono&quot;
+FONTSIZE=&quot;24x12&quot;
+</code></pre>
+<p>The font will be loaded upon reboot.</p>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

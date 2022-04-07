@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#running-commands-in-parallel">Running commands in parallel</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#usage">Usage</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="running-commands-in-parallel">Running commands in parallel</h1>
+<h2 id="preface">Preface</h2>
+<p>I found a tool called "parallel" that lets you run commands in parallel instead of sequentially.</p>
+<h2 id="usage">Usage</h2>
+<p>The three colons get substituted for the arguments received from stdin. The "-j" option denotes how many individual processes will be created.</p>
+<pre><code>apt install parallel
+
+# Recursivley search for all zip files and unzip four at a time
+find -name &quot;*.zip&quot; | parallel -j 4 unzip ::: -d ./extracted/
+
+# Run multiple grep commands on several files
+find -name &quot;*.txt&quot; | parallel -j 8 grep -i &quot;parallel&quot; :::
+</code></pre>
+<p>GNU parallel can take stdin from a file aswell. You won't have to worry about parallel creating two different processes which act on the same file An example would be "grep" being run on "file.txt" twice.</p>
+<pre><code># Example of how parallel would work
+find .
+file.zip
+something.zip
+three.zip
+four.zip
+
+# Running two instances of unzip at a time
+find . | parallel -j2 unzip :::
+
+PROCESS1: unzip file.zip
+PROCESS2: unzip something.zip
+</code></pre>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

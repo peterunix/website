@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#using-nvme-as-os-root">Using NVME as os root</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#preparing-our-nvme">Preparing our nvme</a></li>
+<li><a href="#copying-root-files">Copying root files</a></li>
+<li><a href="#changing-the-root-to-nvme">Changing the root to nvme</a></li>
+<li><a href="#work-arounds">Work arounds</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="using-nvme-as-os-root">Using NVME as os root</h1>
+<h2 id="preface">Preface</h2>
+<p>I assume that you have an nvme drive with a formatted ext4 partition present. I'm using Manjaro Arm. I've tested this on Alarm and I'd imagine it would work on debian aswell. We take advantage of /boot/extlinux/extlinux.conf to choose our root drive.</p>
+<h2 id="preparing-our-nvme">Preparing our nvme</h2>
+<pre class="shell"><code>mount /dev/nvme0n1p1 /mnt
+cd /mnt
+mkdir dev sys proc mnt
+</code></pre>
+<h2 id="copying-root-files">Copying root files</h2>
+<p>It's important to exclude the psuedo filesystems and /mnt, when copying your root files.</p>
+<pre class="shell"><code>rsync -aHxv --numeric-ids --progress /* /mnt --exclude=/dev --exclude=/proc --exclude=/sys --exclude=/mnt
+</code></pre>
+<h2 id="changing-the-root-to-nvme">Changing the root to nvme</h2>
+<pre class="shell"><code>$ mv /mnt/boot /mnt/boot.old
+$ vim /boot/extlinux/extlinux.conf
+
+# Change &quot;root=LABEL=ROOT&quot; to &quot;root=/dev/nvme0n1p1&quot;
+</code></pre>
+<h2 id="work-arounds">Work arounds</h2>
+<p>If the boot partition is "read only", you can remount it with rw permissions as so:</p>
+<pre class="shell"><code>$ mount /dev/mmcblk1p1 /boot -o remount,rw
+</code></pre>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

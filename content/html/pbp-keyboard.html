@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#updating-the-pinebook-pros-keyboard">Updating the Pinebook Pros keyboard</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#installtion">Installtion</a></li>
+<li><a href="#modifications">Modifications</a></li>
+<li><a href="#key-codes">Key codes</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="updating-the-pinebook-pros-keyboard">Updating the Pinebook Pros keyboard</h1>
+<h2 id="preface">Preface</h2>
+<p>This is a verbatim copy of the directions written on [1]jackhumbert's git.</p>
+<h2 id="installtion">Installtion</h2>
+<pre class="shell"><code># compile
+git clone https://github.com/jackhumbert/pinebook-pro-keyboard-updater
+cd pinebook-pro-keyboard-updater
+sudo apt-get install build-essential libusb-1.0-0-dev xxd
+make
+
+# For ISO keyboard
+# step-1
+sudo ./updater step-1 iso
+sudo reboot
+
+# after reboot, step-2
+sudo ./updater step-2 iso
+sudo reboot
+
+# For ANSI keyboard
+# step-1
+sudo ./updater step-1 ansi
+sudo reboot
+
+# after reboot, step-2
+sudo ./updater step-2 ansi
+sudo reboot
+
+# updating to the revised ansi firmware after steps 1 and 2
+sudo ./updater flash-kb firmware/default_ansi.hex
+
+# updating to the revised iso firmware after steps 1 and 2
+sudo ./updater flash-kb firmware/default_iso.hex
+</code></pre>
+<h2 id="modifications">Modifications</h2>
+<ol>
+<li>Corrected Fn+F9-12 keys for ANSI (ISO version didn't have this issue)</li>
+<li>Arrow (and other) keys work with the Pine (GUI) key</li>
+<li>NumLock is respected only in the Fn layer, i.e. NumLock can be left on all the time</li>
+<li>Privacy switches now send keycodes when being enabled/disabled, for working into scripts/notifications</li>
+</ol>
+<h2 id="key-codes">Key codes</h2>
+<p>F14: Microphone Enabled F18: Microphone Disabled F13: Wifi Enabled F17: Wifi Disabled F15: Camera Enabled F19: Camera Disabled</p>
+<p>References</p>
+<ol>
+<li><a href="https://github.com/jackhumbert/pinebook-pro-keyboard-updater">https://github.com/jackhumbert/pinebook-pro-keyboard-updater</a></li>
+</ol>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

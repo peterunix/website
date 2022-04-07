@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#chrooting-into-systems-with-different-architectures">Chrooting into systems with different architectures</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#locating-the-start-of-a-partition">Locating the start of a partition</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="chrooting-into-systems-with-different-architectures">Chrooting into systems with different architectures</h1>
+<h2 id="preface">Preface</h2>
+<p>Full disk images contain the bootloader and partition table. To mount an image file, we specify a <em>byte offset</em> that points to the beginning of our linux partition.</p>
+<h2 id="locating-the-start-of-a-partition">Locating the start of a partition</h2>
+<p>Run <em>fdisk -l file.img</em>.</p>
+<pre class="shell"><code>[...]
+Units: sectors of 1 * 512 = 512 bytes
+[...]
+
+Device                                    Boot  Start     End Sectors  Size Id Type
+2021-05-07-raspios-buster-armhf-lite.img1        8192  532479  524288  256M  c W95 FAT32 (LBA)
+2021-05-07-raspios-buster-armhf-lite.img2      532480 3661823 3129344  1.5G 83 Linux
+</code></pre>
+<p>I'm using the bash to multiply my start sector by my sector size.</p>
+<pre class="shell"><code>mount -o loop,offset=$((512*532480)),rw ~/2021-05-07-raspios-buster-armhf-lite.img /mnt
+</code></pre>
+<p><strong>-o</strong> Pass options to mount</p>
+<p><strong>loop</strong> Creates a psuedo block device to mount the image file to</p>
+<p><strong>offset=$((512*532480))</strong> Sets the offset to the sum of 512*startSector</p>
+<p><strong>rw</strong> Enables reading and writing to the mountpoint</p>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

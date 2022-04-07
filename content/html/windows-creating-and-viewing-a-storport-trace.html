@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#creating-viewing-and-parsing-a-storport-driver-trace">Creating, Viewing, and Parsing a Storport Driver Trace</a><ul>
+<li><a href="#creating-a-storport-trace-using-logman.exe">Creating a StorPort trace using logman.exe</a></li>
+<li><a href="#viewing-the-trace-data-event-viewer-method">Viewing the trace data (Event Viewer Method)</a></li>
+<li><a href="#viewing-the-trace-data-storportpacman.ps1-method">Viewing the trace data (StorportPACMAN.ps1 Method)</a><ul>
+<li><a href="#downloading-the-script">Downloading the script</a></li>
+<li><a href="#importing-the-script-as-a-module">Importing the script as a module</a></li>
+<li><a href="#preparing-our-storport.etl-file">Preparing our storport.etl file</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="creating-viewing-and-parsing-a-storport-driver-trace">Creating, Viewing, and Parsing a Storport Driver Trace</h1>
+<h2 id="creating-a-storport-trace-using-logman.exe">Creating a StorPort trace using logman.exe</h2>
+<p>LOGMAN.EXE is CLI utility for creating data collector sets. A data collector set can be thought of as a container for choosing which performance counters or trace events to log. All the logged data from the data collector will be stored in a single file.</p>
+<p>A performance counter provides high-level, numeric, metrics for system behavior. There are performance counters for CPU utilization, search indexing, disk utilization, processes, etc. It provides general information on how parts of your computer are behaving.</p>
+<p>Traces events are low-level events that get reported when something <em>note worthy</em> happens with a system component or application. The Windows kernel may report each time a DLL is loaded, unloaded, a process starts/stops, etc. In this case, the StorPort driver trace reports things like latency, byte length, IO return codes, etc.</p>
+<p>Everything we're doing here can be done through the PERFMON.EXE GUI</p>
+<pre class="shell"><code># Creating the TraceLog
+LOGMAN.EXE create trace &quot;storport&quot; -ow -o c:\PerfLogs\storport.etl -p &quot;Microsoft-Windows-StorPort&quot; 0xffffffffffffffff 0xff -nb 16 16 -bs 1024 -mode Circular -f bincirc -max 512 -ets
+
+# Starting the trace log
+LOGMAN.EXE start storport -ets
+
+# When you feel like you captured the issue in the log, stop it.
+LOGMAN.EXE stop storport -ets
+</code></pre>
+<p><strong>-ow</strong> Overwrite an existing logfile</p>
+<p><strong>-o</strong> Path for the existing log</p>
+<p><strong>-p</strong> TODO</p>
+<p><strong>HexCodes</strong> TODO</p>
+<p><strong>-nb</strong> Number of event trace buffers</p>
+<p><strong>-bs</strong> Event trace buffer size</p>
+<p><strong>-mode Circular</strong> The event trace logger mode. Circular means the log file overwrites the oldest data constantly.</p>
+<p><strong>-f bincirc</strong> Log format. We're using the circular binary format</p>
+<p><strong>-max 512</strong> The max size in megabytes.</p>
+<p><strong>-ets</strong> Send commands to Event Trace Sessions directly without saving or scheduling.</p>
+<h2 id="viewing-the-trace-data-event-viewer-method">Viewing the trace data (Event Viewer Method)</h2>
+<p>We used LOGMAN to create a trace log and store the output to C:/PerfLogs/storport.etl. Here's how you can open the file with Eventviewer</p>
+<ul>
+<li>Open EventViewer</li>
+<li>Click Action&gt;OpenSavedLog</li>
+<li>Navigate to your storport.etc file, open it, and click the option to copy the data to an event log.</li>
+<li>Click on any log and select the "Details" tab</li>
+</ul>
+<p>The event property you're looking for is "RequestDuration_100ns". This is the TODOTODOTODO. The measurement is done in nano-seconds. To convert it to milliseconds, divide the value by 10,000</p>
+<pre class="shell"><code># 22860ns is equal to 22ms
++ System 
+- EventData 
+  RequestDuration_100ns 22860 
+  Irp 0xffffe10c1e9f7a20 
+  Command 53 
+  SrbStatus 1 
+  OriginalIrp 0x0 
+  Port 0 
+  Bus 0 
+  Target 0 
+  LUN 0 
+  ScsiStatus 0 
+  ByteLengthOfTransfer 0 
+  BuildIoDuration_100ns 21 
+  StartIoDuration_100ns 121 
+</code></pre>
+<p>Less than 9ms = Excellent performance</p>
+<p>Less than 15ms = Good Performance</p>
+<p>Less than 25ms = Normal</p>
+<p>More than 25ms = Poor Performance</p>
+<h2 id="viewing-the-trace-data-storportpacman.ps1-method">Viewing the trace data (StorportPACMAN.ps1 Method)</h2>
+<h3 id="downloading-the-script">Downloading the script</h3>
+<p>StorportPacman.PS1 is a powershell script written by Paul Reynolds at Microsoft. It parses the STORPORT.ETL file into an organized, human readable, CSV file.</p>
+<p>For archival purposes, I'm including a full copy and paste of it here.</p>
+<pre class="shell"><code>#StorportPACMAN ported to Windows Powershell
+#Paul Reynolds PaulRey@microsoft.com -&gt; Improvements: Robin Hermann (RHE)
+#version 1.1 updated for 2012 R2
+#version 1.2 updated with performance enhancments
+#version 1.3 updated to make filter for storport data more robust
+#version 1.4 updated to make filter for storport data able to use storport ets trace data (insightweb)
+#version 1.5 updated to include addition strings to flag storport data
+#version 1.6 updated to fix bug in parameter errors
+#version 1.7 updated to fix Excel 2016 ACE provider bug that converts hex to decimal on the fly
+#version 1.8 updated to allow flexibility in installation directory 
+#version 1.9 updated to clean up leading and trailing spaces in header information and data, which caused problems in an Office 2016 update regression issue
+#version 2.0 updated to show warnings if data has any records with SCSI Status not 0 and/or SRB Status not 1
+#version 3.0 RHE: updated to a function for more agility
+#version 3.1 RHE: add more parameters and fix the with $MyInvocation, $MyInvocation is an automatic variable populated at script run time, then if you execute $MyInvocation.MyCommand.Path in a powershell console or ISE isn&#39;t populated
+
+#You must run the script not the script content only!
+
+Function Convert-ETWTraceToReadableFileCSV {
+    [CmdletBinding()]
+
+    #read in parameters for requestdurationvalue and ETL location
+    Param(
+        [Parameter(Position=0,mandatory=$false,HelpMessage=&quot;Path to the Skript and the Excel PowerPivot Templates (storport2012.xlsx)&quot;)][string]$WorkFolderPath = &quot;C:\StorPortPACMAN&quot;,
+        [Parameter(Position=1,mandatory=$false)][string]$Filter,
+        [Parameter(Position=2,mandatory=$false)][string]$ETL,
+        [Parameter(Position=3,mandatory=$false,HelpMessage=&quot;If you already converted the ETL to CSV&quot;)][string]$RAWXPerfCSVPath = $WorkFolderPath + &#39;\raw-xperf.csv&#39;
+    )
+
+    process {
+        #edit this string for future change to storport data headers 
+        $strStorportData = @(&#39;Microsoft-Windows-StorPort/Miniport&#39;,&#39;Microsoft-Windows-StorPort/Port /Info&#39;,&#39;Microsoft-Windows-StorPort/Port/win:Info&#39;,&#39;Microsoft-Windows-StorPort/TaskMiniportIORequestServiceTime&#39;);
+
+        [System.Reflection.Assembly]::LoadWithPartialName(&quot;System.Windows.Forms&quot;)
+
+        $storportpacmandirectory = $WorkFolderPath #Split-Path -Parent $MyInvocation.MyCommand.Path #&quot;C:\StorPortPACMAN&quot; 
+        $requestduration_multiplier = 1 #this will change to 10,000 if the OS is Server 2012 due to differences in requestduration units (milliseconds in 2008, 100ns in 2012)
+
+        #test if requestdurationvalue is present and a valid integer
+        If ($filter -eq &#39;&#39;){
+            $requestdurationvalue = 1000000 #default to 1000000 if not present(do NOT use commas)
+        } else {
+            If(($filter -as [Int64]) -eq $null) {
+                [System.Windows.Forms.MessageBox]::Show(&#39;The request duration filter is either not a valid integer or has commas.&#39;)
+                exit
+            } else {
+                $requestdurationvalue = [Int64]$filter
+            }
+        }
+
+        If ($RAWPerfCSVPath -eq &#39;&#39;) {
+            #test if etl file is present and a valid file
+            If($etl -eq &#39;&#39;) {
+                $ETLlocation = $storportpacmandirectory + &#39;\storport.etl&#39;
+                If (-not (Test-Path $ETLlocation -PathType leaf)) {
+                    [System.Windows.Forms.MessageBox]::Show(&#39;Sorry, but the file &quot;Storport.etl&quot; was not found.  Is it named correctly and in the storportpacman directory?&#39;)
+                    exit
+                }
+            } else {
+                If (-not (Test-Path $etl -PathType leaf)) {
+                  [System.Windows.Forms.MessageBox]::Show(&#39;Sorry, but the file &quot;&#39; + $etl + &#39;&quot; was not found.&#39;)
+                  exit
+                } else {
+                  $ETLlocation = $etl
+                }
+            }
+
+            Write-Progress -Activity &quot;StorportPACMAN Progress&quot; -Status &quot;Converting ETL file to CSV file via XPERF&quot; -PercentComplete &quot;33&quot;
+
+            try {
+                $myargs = &quot;-i &quot; + (&#39;&quot;{0}&quot;&#39; -f $ETLlocation) + &quot; -o &quot;  + (&#39;&quot;{0}&quot;&#39; -f $storportpacmandirectory) + &quot;\raw-xperf.csv -tle&quot;
+                Start-Process xperf -ArgumentList $myargs -Wait
+            }
+            catch {
+                [System.Windows.Forms.MessageBox]::Show(&#39;There was an error running XPerf.  Is it installed and in your system path?  The error message is &#39; + $_.Exception.Message)
+                exit
+            }
+        }
+
+
+        try {
+            $reader = New-Object System.IO.StreamReader($RAWXPerfCSVPath)
+            $writer = New-Object System.IO.StreamWriter($storportpacmandirectory + &#39;\processed-xperf.csv&#39;)
+        } catch {
+            [System.Windows.Forms.MessageBox]::Show(&#39;There was an error creating the readers or writers.  Do you have write access to the &#39; + $storportpacmandirectory?  + &#39; The error message is &#39; + $_.Exception.Message)
+            exit
+        }
+
+
+        try {
+            Write-Progress -Activity &quot;StorportPACMAN Progress&quot; -Status &quot;Scrubbing Data&quot; -PercentComplete &quot;50&quot;
+
+            $already_wrote_header = &#39;false&#39;;
+            $request_duration_index = 14;
+            $record_counter = 0;
+            $scsi_status_not_0_counter=0;
+            $srb_status_not_1_counter=0;
+            $scsi_status_index = 16;
+            $srb_status_index = 17;
+
+            While ($reader.Peek() -gt -1) {
+                $original_record = $reader.ReadLine()
+
+                if ($original_record.Contains(&#39;OS Version:&#39;)) {
+                    #check if O/S is windows 2012 or greater and if it is, make requestduration multiplier 10000 since requestdurations changed from millisecond to 100 nanosecond increments
+                    #also request_duration column changes from 14 to 9
+
+                    if ([Double]$original_record.Substring(11,4) -ge 6.2) {
+                        $requestduration_multiplier = 10000;
+                        $request_duration_index = 9;
+                        $srb_status_index = 12;
+                        $scsi_status_index = 18;
+                    }
+
+                    #get the trace start date time
+                    $str_start_time = $original_record.Substring($original_record.IndexOf(&#39;Trace Start:&#39;) + (&#39;trace start:&#39;).Length, $original_record.IndexOf(&#39;,&#39;, $original_record.IndexOf(&#39;Trace Start:&#39;)) - ($original_record.IndexOf(&#39;Trace Start:&#39;) + (&#39;trace start:&#39;).Length));
+                    $int_start_time = [Int64]($str_start_time);
+                    $start_time = Get-Date(&#39;1/1/1601 12:00AM GMT&#39;);
+                    $start_time = $start_time.AddTicks($int_start_time);
+                    continue
+                }
+
+
+                #read in raw data and scrub it
+                $isStorportData = &#39;false&#39;;
+
+                foreach ($s in $strStorportData) {
+                    if ($original_record.Contains($s)) {
+                        $isStorportData = &#39;true&#39;;
+                        break;
+                    }
+                }
+
+                if ($isStorportData -eq &#39;true&#39;) { #this ignores all data except for lines with a string match in $strStorportData
+                    $storport_data = $original_record.Split(&#39;,&#39;);
+
+                    If(($storport_data[1] -as [Int64]) -ne $null) { #test for header versus data 
+                        $record_counter = $record_counter + 1;
+                        $dbl_delta_time = $storport_data[1] / 1000;
+                        $storport_data[1] = $start_time.AddMilliseconds($dbl_delta_time).ToLocalTime().ToString();
+
+                        #fix for Excel 2016 bug that converts hex to decimal on the fly
+                        if($request_duration_index -eq 9) {
+                            $storport_data[11] = &#39;&quot;&#39; + $storport_data[11] + &#39;&quot;&#39;;
+                            $storport_data[12] = &#39;&quot;&#39; + $storport_data[12] + &#39;&quot;&#39;;
+                            $storport_data[18] = &#39;&quot;&#39; + $storport_data[18] + &#39;&quot;&#39;;
+                        }
+                        $header_flag = &#39;false&#39;
+                    } else {
+                        $header_flag = &#39;true&#39;
+                    }
+
+                    $original_record = $storport_data[1].Trim() + &#39;,&#39;;
+
+                    for ($i = 9; $i -lt $storport_data.Length; $i++) {
+                        $original_record += $storport_data[$i].Trim() + &#39;,&#39;;
+                    }
+
+                    #fix for 2012 changing record names
+                    if ($header_flag) {
+                        $original_record = $original_record.Replace(&#39;RequestDuration_100ns&#39;, &#39;RequestDuration in 100ns&#39;);
+                        $original_record = $original_record.Replace(&#39;BuildIoDuration_100ns&#39;, &#39;BuildIoDuration in 100ns&#39;);
+                        $original_record = $original_record.Replace(&#39;StartIoDuration_100ns&#39;, &#39;StartIoDuration in 100ns&#39;);
+                        $original_record = $original_record.Replace(&#39;ByteLengthOfTransfer&#39;, &#39;DataTransferLength&#39;);
+                    }
+
+                    #cleanup
+                    $original_record = $original_record.Replace(&#39;TimeStamp&#39;,&#39;DateTime&#39;);
+                    $original_record = $original_record.TrimEnd(&#39;,&#39;);
+                    $original_record = $original_record.Replace(&#39;(&#39;,$null);
+                    $original_record = $original_record.Replace(&#39;)&#39;,$null);
+                    $original_record = $original_record.Replace(&quot;\&#39;&quot;,$null);
+
+
+                    if (($requestdurationvalue -ne -1) -AND ($header_flag -eq &#39;false&#39;)) {  #write out the data immediately if it is the header or there is no filter (-1 value for $requestdurationvalue)
+                        if ([Int64]($storport_data[$request_duration_index].Trim()) -lt ($requestdurationvalue * $requestduration_multiplier)) {
+                            #write the line if the value of requestduration is lower then the filter
+                            $writer.WriteLine($original_record)
+
+                            if ($request_duration_index -eq 9) {
+                                #scsi status check
+                                if (-Not ($storport_data[$scsi_status_index].Contains(&quot;0x00&quot;))) {
+                                    $scsi_status_not_0_counter = $scsi_status_not_0_counter + 1;
+                                }
+
+                                #srb status check
+                                if (-Not ($storport_data[$srb_status_index].Contains(&quot;0x01&quot;))) {
+                                    $srb_status_not_1_counter = $srb_status_not_1_counter + 1;
+                                }
+                            }
+
+                            else {
+
+                                #scsi status check
+                                if ($storport_data[$scsi_status_index].Trim() -ne &quot;0&quot;) {
+                                    $scsi_status_not_0_counter = $scsi_status_not_0_counter + 1;
+                                }
+
+                                #srb status check
+                                if ($storport_data[$srb_status_index].Trim() -ne &quot;1&quot;) {
+                                    $srb_status_not_1_counter = $srb_status_not_1_counter + 1;
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        if ($header_flag -eq &#39;true&#39;) {
+                            if ($already_wrote_header -eq &#39;false&#39;) {
+                                $writer.WriteLine($original_record)
+                            }
+
+                            $already_wrote_header = &#39;true&#39;;
+                        }
+                        else {
+                            $writer.WriteLine($original_record)
+
+                            if ($request_duration_index -eq 9) {
+                                #scsi status check
+                                if (-Not ($storport_data[$scsi_status_index].Contains(&quot;0x00&quot;))) {
+                                    $scsi_status_not_0_counter += 1;
+                                }
+
+                                #srb status check
+                                if (-Not ($storport_data[$srb_status_index].Contains(&quot;0x01&quot;))) {
+                                    $srb_status_not_1_counter += 1;
+                                }
+                            } else {
+                                #scsi status check                       
+                                if ($storport_data[$scsi_status_index].Trim() -ne &quot;0&quot;) {
+                                    $scsi_status_not_0_counter += 1;
+                                }
+
+                                #srb status check
+                                if ($storport_data[$srb_status_index].Trim() -ne &quot;1&quot;) {
+                                    $srb_status_not_1_counter += 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            $writer.Flush()
+            $writer.Close()
+            $reader.Close()
+        }
+        catch {
+            [System.Windows.Forms.MessageBox]::Show(&#39;There was an error while scrubbing the data. The error message is &#39; + $_.Exception.Message)
+            exit
+        }
+
+        if ($record_counter -ne 0) {
+            # open exel spreadsheet
+            Write-Progress -Activity &quot;StorportPACMAN Progress&quot; -Status &quot;Opening Excel Spreadsheet&quot; -PercentComplete &quot;66&quot; 
+
+            if ($requestduration_multiplier -eq 10000) { #Check for Windows 2012
+                $workbookpath = $storportpacmandirectory + &#39;\storport2012.xlsx&#39;
+            } else {
+                $workbookpath = $storportpacmandirectory + &#39;\storport2008.xlsx&#39;
+            }
+
+            Try {
+                $excel = New-Object -ComObject Excel.Application
+                $excel.visible = $true
+                $workbook = $excel.workbooks.open($workbookpath)
+                $workbook.refreshall()
+
+                $mymessage = &quot;Data Refresh Complete. Processed &quot; + $record_counter.ToString() + &quot; records.&quot;;
+
+                if ($scsi_status_not_0_counter -ne 0) {
+                    $mymessage = $mymessage + &quot;`r`nWARNING: there were &quot; + $scsi_status_not_0_counter.ToString() + &quot; records that have a SCSI Status other than GOOD - please review the data.&quot;;
+                }
+
+                if ($srb_status_not_1_counter -ne 0) {
+                    $mymessage = $mymessage + &quot;`r`nWARNING: there were &quot; + $srb_status_not_1_counter.ToString() + &quot; records that have a SRB Status of not completing successfully - please review the data.&quot;;
+                }
+
+                [System.Windows.Forms.MessageBox]::Show($mymessage);
+            } catch {
+                [System.Windows.Forms.MessageBox]::Show(&#39;There was an error opening one of the spreadsheets. Make sure both storport2012.xlsx and storport2008.xlsx are in the &#39; + $storportpacmandirectory + &#39; directory.  The error message is &#39; + $_.Exception.Message)
+                exit
+            }
+        } else {
+            [System.Windows.Forms.MessageBox]::Show(&#39;There was no Storport data in the ETL file.  Please check how you ran the Storport trace.&#39;)
+            exit
+        }
+    }
+}
+</code></pre>
+<h3 id="importing-the-script-as-a-module">Importing the script as a module</h3>
+<p>Copy and paste the script into a ps1 file. Next, import it using this command</p>
+<pre class="shell"><code>Import-Module -Name ./StorportPacman.ps1
+</code></pre>
+<h3 id="preparing-our-storport.etl-file">Preparing our storport.etl file</h3>
+<p>We have to use XPerf.exe to convert the ETL file into a CSV before we sort it with StorportPacman.ps1. Download the Windows Performance Toolkit from <a href="https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install">this Windows ADK link</a>.</p>
+<p>Once the toolkit is installed, convert the storport.etl file to a CSV</p>
+<pre class="shell"><code>xperf -i C:\Perflogs\storport.ETL -o C:\Perflogs\raw-xperf.csv -tle
+</code></pre>
+<p>Now finally download the PowerPivot Excel templates from <a href="file:///content/files/Storport/Storport_Excel_PowerPivot-Templates.zip">my website</a> or from <a href="http://wiki.webperfect.ch/index.php?title=Datei:Storport_Excel_PowerPivot-Templates.zip">wiki.webperfect.ch</a></p>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

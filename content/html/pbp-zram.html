@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#configuring-zram-on-the-pinebook-pro">Configuring ZRAM on the Pinebook Pro</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#checking-if-zram-is-supported">Checking if ZRAM is supported</a></li>
+<li><a href="#setting-up-zram">Setting up ZRAM</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="configuring-zram-on-the-pinebook-pro">Configuring ZRAM on the Pinebook Pro</h1>
+<h2 id="preface">Preface</h2>
+<p>ZRAM is essentially compressed memory. Your system uses some of it's CPU cycles to compress redundant data into a reserved area of your ram. Think of it as swap space, but without writing to your drive. I've tested this on both Manjaro Arm and Archlinux Arm.</p>
+<h2 id="checking-if-zram-is-supported">Checking if ZRAM is supported</h2>
+<pre class="shell"><code>$ insmod | grep zram
+
+Output: zram    ????? ?
+</code></pre>
+<p>If you get similar results, zram should be supported.</p>
+<h2 id="setting-up-zram">Setting up ZRAM</h2>
+<pre class="shell"><code>sudo modprobe zram &amp;&amp; sudo zramctl -a lzo-rle -s 12G zram0
+</code></pre>
+<p>Here we are choosing the compression algorithm and size of the zram device. Next we tell our system to use it as swap.</p>
+<pre class="shell"><code>sudo mkswap /dev/zram0 &amp;&amp; sudo swapon /dev/zram0
+</code></pre>
+<p>We should be good to go. Here's how you can verify zram is being used.</p>
+<pre class="shell"><code>free -h
+
+total        used        free      shared  buff/cache   available
+Mem:         3.7Gi       429Mi     2.7Gi        30Mi       562Mi
+Swap:        11Gi          0B        11Gi
+</code></pre>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

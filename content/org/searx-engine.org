@@ -1,0 +1,9 @@
+* Setting searx as the default search engine
+
+You can change the default search engine on chromium easily.
+With firefox you have to install a third party plugin for it.
+Here's what the search engine url should look like.
+
+#+begin_src shell
+https://search.yourdomain.com/search?q=%s
+#+end_src

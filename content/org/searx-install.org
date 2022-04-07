@@ -1,0 +1,77 @@
+* Searx Installation
+
+** Preface
+I'm doing this on a Debian 10 server.
+The guide assumes you have root privledges.
+
+** Dependencies
+
+#+begin_src shell
+apt install docker docker.io nginx
+#+end_src
+
+** Creating Searx container
+
+This pulls and starts the docker container, creating a web socket that's accessible via 127.0.0.1:8888.
+Normally this image creates a searx instance that's accessible via the servers public IP.
+We don't want this since we're going to be accessing the container through nginx.
+
+#+begin_src shell
+docker pull wonderfall/searx
+docker run -d --restart unless-stopped --name searx -p 127.0.0.1:8888:8888 wonderfall/searx
+#+end_src
+
+** Running with Nginx
+Here we'll use [2]"proxy_pass" to send our clients requests to our docker container.
+This is done so we can set it up with a domain name and SSL - kinda like [3]this.
+
+#+begin_src shell
+vim /etc/nginx/sites-available/default
+
+# I appended the following:
+server {
+        listen 80;
+        server_name search.yourdomain.com;
+
+        location / {
+        proxy_pass http://127.0.0.1:8888;
+        }
+}
+#+end_src
+
+
+** Starting the container as service
+
+Our searx server should be up and running.
+Let's create a systemd service to start the container on boot.
+
+#+begin_src shell
+vim /etc/systemd/system/docker-searx.service
+
+[Unit]
+Description=Searx docker service
+Requires=docker.service
+After=docker.service
+
+[Service]
+ExecStart=/usr/bin/docker start -a searx
+ExecStop=/usr/bin/docker stop -t 2 searx
+
+[Install]
+WantedBy=default.target
+
+
+systemctl enable docker-searx
+systemctl start docker-searx
+systemctl status docker-searx
+#+end_src
+
+Searx should be up and running on "search.yourdomain.com".
+I recommend changing the access_log and error_log files to "/dev/null" in /etc/nginx/nginx.conf.
+Logs are for google.
+
+References
+
+   1. file:///opt/webNew/index.php
+   2. https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/
+   3. https://search.unixfandom.com/

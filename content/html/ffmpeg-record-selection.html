@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#recording-the-selected-part-of-the-screen-with-ffmpeg">Recording the selected part of the screen with ffmpeg</a><ul>
+<li><a href="#preface">Preface</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="recording-the-selected-part-of-the-screen-with-ffmpeg">Recording the selected part of the screen with ffmpeg</h1>
+<h2 id="preface">Preface</h2>
+<p>Depends: slop ffmpeg</p>
+<p>Here's a script I wrote that lets you select a window or portion of the screen and record it. It uses the ultrafast libx264 video codec to reduce resource consumption. Audio bitrate is capped at 128kb/s and the video is scaled to 720p to further conserve resourse usage.</p>
+<pre><code>#!/bin/sh
+# Depends: slop ffmpeg
+# Records the selected part of the screen
+
+output=&quot;$1&quot;
+dimensions=$(slop 2&gt;/dev/null)
+size=$(echo &quot;$dimensions&quot; | sed &#39;s/+.*//&#39;)
+offset=$(echo &quot;$dimensions&quot; | cut -d&#39;+&#39; -f2- | sed &#39;s/+/,/g&#39;)
+
+[ -z &quot;$output&quot; ] &amp;&amp; output=&quot;output&quot;
+ffmpeg -video_size &quot;$size&quot; \
+        -framerate 25 \
+        -f x11grab -i :0.0+&quot;${offset}&quot; \
+        -crf 28 \
+        -b:a 128k \
+        -c:v libx264 -preset ultrafast \
+        -c:a acc \
+        -vf scale=-2:720,format=yuv420p \
+        &quot;$output.mp4&quot;
+</code></pre>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

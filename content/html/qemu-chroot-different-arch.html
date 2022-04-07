@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#chrooting-into-systems-with-different-architectures">Chrooting into systems with different architectures</a><ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#dependencies">Dependencies</a></li>
+<li><a href="#chrooting">Chrooting</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="chrooting-into-systems-with-different-architectures">Chrooting into systems with different architectures</h1>
+<h2 id="preface">Preface</h2>
+<p>The qemu-user-static package provides several usermode emulation binaries. We can copy these over to our chroot environment to emulate programs from a different architecture.</p>
+<h2 id="dependencies">Dependencies</h2>
+<p>The emulation binaries will be placed in /usr/bin/qemu-*-static. These are standalone applications don't require dependencies. The arch-install-scripts provide the "arch-chroot" wrapper script. It handles mounting the psuedo filesystems (dev,proc,sys) so we don't have to.</p>
+<pre class="shell"><code>apt install qemu-user-static arch-install-scripts
+</code></pre>
+<h2 id="chrooting">Chrooting</h2>
+<p>Here's me chrooting into Raspbian ARM.</p>
+<pre class="shell"><code># Mounting raspbian paritions
+mount /dev/sdb2 /mnt
+mount /dev/sdb1 /mnt/boot
+
+# Copying emulation binary to raspbian path
+cp /usr/bin/qemu-arm-static /mnt/usr/bin
+
+# Using qemu-arm-static to emulate the bash shell in chroot
+arch-chroot /mnt qemu-arm-static /bin/bash
+</code></pre>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>
