@@ -9,6 +9,7 @@
 :root{
     --font: SauceCodePro;
     --bg-color: #222222;
+    --headline1-font-size: 36px;
     --headline-color: #db7093;
     --link-color: #db7093;
     --text-color: #fefefe;
@@ -52,6 +53,11 @@ li{
 
 a{
     font-size: var(--link-font-size);
+    color: var(--link-color);
+}
+
+a.title{
+    font-size: var(--headline1-font-size);
     color: var(--link-color);
 }
 

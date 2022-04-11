@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title"><a class="title" href=/index.html>Unixfandom</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#windows-powershell-rmail-silent-installer">Windows Powershell Rmail Silent Installer</a>
+<ul>
+<li><a href="#preface">Preface</a></li>
+<li><a href="#the-script">The script</a></li>
+<li><a href="#important-notes">Important notes</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="windows-powershell-rmail-silent-installer">Windows Powershell Rmail Silent Installer</h1>
+<h2 id="preface">Preface</h2>
+<p>This downloads and installs Rmail for Outlook. It tries to detect the architecture you're using for Outlook. First it uninstalls it, next it removes all the Rmail configuration files, and finally it installs it</p>
+<h2 id="the-script">The script</h2>
+<pre class="shell"><code>Function _StopOutlookEXE{
+    # Get&#39;s the process ID of Outlook, kills it, then waits for it to terminate
+        $ids=(Get-Process -Name outlook*).id
+    foreach ($id in $ids){
+            Stop-Process -Force $id 2&gt;&amp;1 | out-null
+            Wait-Process -Id $id 2&gt;&amp;1 | out-null
+    }
+}
+
+Function _DetectOfficeVersion{
+    # That registry exists for newer versions of office. It&#39;ll try and pull the OS archicecture from it.
+    # It&#39;ll explicitly set the officeIs64Bit to true or false respectivley
+    $office=Get-ItemProperty -Path &#39;HKLM:\SOFTWARE\Microsoft\Office\ClickToRun\Configuration&#39; 2&gt; $null
+    if ($? -eq $true){
+        if ($office.Platform -match &quot;x64&quot;){Write-Host &quot;64Bit detected.&quot;; $Global:officeIs64Bit=$true}
+        if ($office.Platform -match &quot;x86&quot;){Write-Host &quot;32Bit detected.&quot;; $Global:officeIs64Bit=$false}
+    } else{
+        Write-Host &quot;Couldn&#39;t detect office version. Assuming 32bit. Tell Peter to fix this!&quot;
+        $Global:officeIs64Bit = $false
+    }
+}
+
+Function _Uninstallrmail{
+    # Uninstalls rmail if it&#39;s installed. It fishes the registry to find the uninstall string.
+    # It takes a little bit of data manipulation to get working, but it passes it to msiexec for the uninstall
+    try{
+        (($Global:progs | Where {$_.displayname -match &quot;RMail&quot;}).uninstallstring) -match &quot;{.*.}&quot;
+        Write-Host &quot;Uninstalling Rmail&quot;
+        Start-Process &quot;msiexec.exe&quot; -ArgumentList &quot;/X $($matches[0]) /qn&quot; -Wait
+        Write-Host &quot;UNINSTALLED!&quot;
+    } catch {
+        Write-Host &quot;A previous Rmail installation was not detected&quot;
+    }
+
+    # Removing the local user config files for RMail
+    Write-Host &quot;Removing the local user Rmail configuration file&quot;
+    Remove-Item -Recurse -Force -Path C:\Users\*\Appdata\Roaming\RMail\
+    Write-Host &quot;REMOVED!&quot;
+}
+
+Function _InstallRmail{
+    # Downloads and installs either the 32bit or 64bit version of Rmail
+    if ($officeIs64Bit -eq $true){
+        Write-Host &quot;Downloading Rmail 64Bit&quot;
+        Invoke-WebRequest -Uri &quot;https://rpost.com/applications/rmail-for-outlook-desktop-64-bit.msi&quot; -OutFile &quot;$env:temp/rmail.msi&quot; -UseBasicParsing
+        Write-Host &quot;DOWNLOADED!&quot;
+    } else{
+        Write-Host &quot;Downloading Rmail 32Bit&quot;
+        Invoke-WebRequest -Uri &quot;https://rpost.com/applications/rmail-for-outlook-desktop-32-bit.msi&quot; -OutFile &quot;$env:temp/rmail.msi&quot; -UseBasicParsing
+        Write-Host &quot;DOWNLOADED!&quot;
+    }
+
+    Write-Host &quot;Installing Rmail&quot;
+    Start-Process &quot;$env:temp\rmail.msi&quot; -ArgumentList &quot;/qn&quot; -Wait
+    Write-Host &quot;INSTALLED!&quot;
+}
+
+Function _Main{
+    # Suppressing the progress bar when downloading the file improves speeds
+    $ProgressPreference=&quot;SilentlyContinue&quot;
+
+    # These two keys contain all of the information for the installed system programs.
+    # It includes uninstall strings, install paths, versions, display names, etc.
+    $Global:progs=Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall, HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty
+    _StopOutlookEXE
+    _DetectOfficeVersion
+    _UninstallRmail
+    _InstallRmail
+}
+</code></pre>
+<h2 id="important-notes">Important notes</h2>
+<p>This DOES remove the %appdata%/Rmail/settings.json file. Comment out that line if you don't want it removed. That file is automatically regenerated if it doesn't exist.</p>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

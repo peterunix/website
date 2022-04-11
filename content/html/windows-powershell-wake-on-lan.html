@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title"><a class="title" href=/index.html>Unixfandom</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#windows-powershell-wake-on-lan-multiple-computers">Windows Powershell Wake On Lan Multiple Computers</a>
+<ul>
+<li><a href="#how-it-works">How it works</a></li>
+<li><a href="#the-script">The script</a></li>
+<li><a href="#usage">Usage</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="windows-powershell-wake-on-lan-multiple-computers">Windows Powershell Wake On Lan Multiple Computers</h1>
+<h2 id="how-it-works">How it works</h2>
+<p>It takes in a comma separated lists of mac addressses, constructs a WOL packet, then sends it out using the .net UDP Client object. The WOL packet is sent out five times for each mac address.</p>
+<h2 id="the-script">The script</h2>
+<pre class="shell"><code># WakeOnLan using a comma separated list of mac addresses 
+# $env:macAddrs = &quot;ee:ee:ee:ee:ee:ee,ff:ff:ff:ff:ff:ff&quot;
+
+# Exit if macAddrs variable is empty 
+if (!$env:macAddrs){
+    Write-Host &#39;Variable &quot;macAddrs&quot; empty.&#39;
+    Write-Host &quot;This should contain a comma separated list of mac addresses&quot;
+    Exit
+}
+
+# Convert comma separated list of mac addresses into an array
+$macArray = $env:macAddrs.Split(&quot;,&quot;)
+
+# Send a magic packet using each mac address in the array
+for($i=0;$i -lt $macArray.Length; $i++){
+    # Sending 5 magic packets to be safe
+    for($x=0;$x -lt 5; $x++){
+        # Converting the address into a byte array. EE --&gt; 0xEE 
+        $macByteArray = $macArray[$i] -split &quot;[:-]&quot; | ForEach-Object { [Byte] &quot;0x$_&quot;}
+        # Constructing our magic packet. Six FF bytes followed by sixteen instances of the mac address bytes
+        [Byte[]] $magicPacket = (,0xFF * 6) + ($macByteArray  * 16)
+
+        # Creating a UDP client object
+        $UdpClient = New-Object System.Net.Sockets.UdpClient
+        # Sending the magic packet to the broadcast address
+        $UdpClient.Connect(([System.Net.IPAddress]::Broadcast),7)
+        $UdpClient.Send($magicPacket,$magicPacket.Length)
+        $UdpClient.Close()
+    }
+}
+</code></pre>
+<h2 id="usage">Usage</h2>
+<pre class="shell"><code>$env:macAddrs = &quot;ee:ee:ee:ee:ee:ee,ff:ff:ff:ff:ff:ff&quot;
+./script.sh
+</code></pre>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

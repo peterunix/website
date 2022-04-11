@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title"><a class="title" href=/index.html>Unixfandom</h1>
+</header>
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#windows-powershell-adobe-reader-32bit-silent-installer">Windows Powershell Adobe Reader 32bit Silent Installer</a>
+<ul>
+<li><a href="#how-it-works">How it works</a></li>
+<li><a href="#the-script">The script</a></li>
+<li><a href="#usage">Usage</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="windows-powershell-adobe-reader-32bit-silent-installer">Windows Powershell Adobe Reader 32bit Silent Installer</h1>
+<h2 id="how-it-works">How it works</h2>
+<ul>
+<li>Download the Adobe Enterprise Installer</li>
+<li>Use 7z portable to extract the installer.exe file to a folder</li>
+<li>Parse the DC Release Notes page to pull the latest patch file</li>
+<li>Modify the setup.ini file to have it use our new patch file</li>
+<li>Run the setup.exe file with flags to silent install</li>
+</ul>
+<p>The Adobe Reader Enterprise installer essentially a zip file with an old release of Adobe, along with a patch file that'll update Adobe to the most recent release. Inside the extracted adobe.exe file is a setup.exe and a setup.ini. The setup.ini file has a line that indicates which patch file the setup.exe file should use.</p>
+<p>The script downloads Adobe using a hardcoded link. It extracts it and scrapes the DC Release Notes page to download the most recent patch file, recreates the setup.ini to use the downloaded patch, and finally runs the setup.exe silently.</p>
+<p>This disables all forms of Adobe updates. Remove _AdobeSettings from the last line to suppress this function.</p>
+<h2 id="the-script">The script</h2>
+<p>Download <a href="file:///content/files/Utilities/7za.exe">7za.exe</a> and <a href="file:///content/files/Utilities/7za.dll">7za.dll</a> and place them in the same directory as the script. Those files will be used for extracting the adobe.exe file.</p>
+<pre class="shell"><code>$temp=&quot;C:\Windows\Temp&quot;
+
+# Fetch the uninstall string for adobe
+function _UninstallAdobe{
+    # Fetch the registry keys for all installed programs
+    $progs=Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall, HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty
+    # Uninstalling Adobe silently
+    try{
+        # Fetch the uninstall string for Adobe and grab the product id of the program
+        (($progs | Where {$_.displayname -match &quot;Adobe Acrobat.*DC&quot;}).uninstallstring) -match &quot;{.*.}&quot; | Out-Null
+        Start-Process &quot;msiexec.exe&quot; -ArgumentList &quot;/X $($matches[0]) /qn&quot; -Wait
+    } catch {
+        &quot;Couldn&#39;t detect a previous install of Adobe Acrobat Reader.&quot;
+    }
+}
+
+function _InstallAdobe{
+    # Downloading an outdated version of Adobe as a base for the patch
+    Write-Host &quot;Downloading Adobe Base&quot;
+    Invoke-WebRequest -Uri &#39;https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2200120085/AcroRdrDC2200120085_en_US.exe&#39; -OutFile &quot;$temp\adobereader.exe&quot; -UseBasicParsing
+    Write-Host &quot;Extracting Adobe&quot;
+    Start-Process &quot;$cwd\7za.exe&quot; -ArgumentList &quot;x $temp\adobereader.exe -o$temp\AdobeReaderExtracted -aoa&quot; -Wait
+
+    # Scrapes the DC Release Notes page and selects the link that contains all patches
+    # for the current month
+    Write-Host &quot;Locating the latest Adobe patch file for this month&quot;
+    $base=&quot;https://www.adobe.com/devnet-docs/acrobatetk/tools/ReleaseNotesDC/&quot;
+    $link=(Invoke-WebRequest -Uri &quot;https://www.adobe.com/devnet-docs/acrobatetk/tools/ReleaseNotesDC/index.html&quot; -UseBasicParsing).links.href | Select-String &quot;continuous/dccontinuous&quot; | Select -First 1
+    $link = $base+$link
+
+    Write-Host &quot;Downloading the latest Adobe patch file.&quot;
+    # After finding the patch notes for the month, let&#39;s scrape the webpage for the latest patch file
+    $patchlink=(Invoke-WebRequest -Uri &quot;$link&quot; -UseBasicParsing).links.href | Select-String &quot;pub/adobe/reader/win/AcrobatDC/&quot; | Select -First 1
+    # Get the filename from the url
+    $filename=([uri]&quot;$patchlink&quot;).Segments[-1]
+    # Download the patch.msp
+    Invoke-WebRequest -Uri &quot;$patchlink&quot; -OutFile &quot;$filename&quot; -UseBasicParsing
+
+# Create a new setup.ini file and have it point to the latest patch file
+# Yes, this ugly indentation is necessary.
+$Setup_INI_Content = @&quot;
+[Startup]
+RequireMSI=3.0
+
+[Product]
+PATCH=$filename
+msi=AcroRead.msi
+&quot;@
+
+    Write-Host &quot;Creating a new setup.ini for the Adobe installer. This will install the latest patch&quot;
+    $Setup_INI_Content | Set-Content &quot;$temp\AdobeReaderExtracted\setup.ini&quot;
+    Write-Host &quot;Starting the installation&quot;
+    Start-Process &quot;$temp\AdobeReaderExtracted\setup.exe&quot; -ArgumentList &quot;/sAll&quot; -Wait
+}
+
+function _AdobeSettings{
+    Write-Host &quot;Disabling the update task, update services, and update registry keys&quot;
+    # Prevent autoupdates (not necessary with the enterprise edition)
+    Disable-ScheduledTask -TaskName &quot;Adobe Acrobat Update Task&quot;
+    Stop-Service -Name &quot;Adobe Acrobat Update Service&quot;
+    Set-Service -Name &quot;AdobeARMservice&quot; -StartupType Disabled
+    # Disables and locks down the update button
+    New-Item &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC&quot; -ErrorAction SilentlyContinue
+    New-Item &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown&quot; -ErrorAction SilentlyContinue
+    New-ItemProperty &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown&quot; -Name &quot;Mode&quot; -Value 0 -PropertyType DWORD -Force
+    New-ItemProperty &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown&quot; -Name &quot;bUpdater&quot; -Value 0 -PropertyType DWORD -Force
+    New-ItemProperty &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown&quot; -Name &quot;bProtectedModeValue&quot; -Value 0 -PropertyType DWORD -Force
+    # This *should* disable enhanced security mode
+    New-ItemProperty &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown&quot; -Name &quot;bEnhancedSecurityStandalone&quot; -Value 0 -PropertyType DWORD -Force
+    New-ItemProperty &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown&quot; -Name &quot;bEnhancedSecurityInBrowser&quot; -Value 0 -PropertyType DWORD -Force
+}
+
+_UninstallAdobe
+_InstallAdobe
+_AdobeSettings
+</code></pre>
+<h2 id="usage">Usage</h2>
+<p>This integrates well with Datto RMM.</p>
+<pre class="shell"><code>./script.ps1
+</code></pre>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>

@@ -5,11 +5,13 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Unixfandom</title>
-  <style type="text/css">
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
 </head>
@@ -22,17 +24,19 @@
 </head>
 <body>
 <header id="title-block-header">
-<h1 class="title">Unixfandom</h1>
+<h1 class="title"><a class="title" href=/index.html>Unixfandom</h1>
 </header>
-<nav id="TOC">
+<nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#creating-viewing-and-parsing-a-storport-driver-trace">Creating, Viewing, and Parsing a Storport Driver Trace</a><ul>
+<li><a href="#creating-viewing-and-parsing-a-storport-driver-trace">Creating, Viewing, and Parsing a Storport Driver Trace</a>
+<ul>
 <li><a href="#creating-a-storport-trace-using-logman.exe">Creating a StorPort trace using logman.exe</a></li>
 <li><a href="#viewing-the-trace-data-event-viewer-method">Viewing the trace data (Event Viewer Method)</a></li>
-<li><a href="#viewing-the-trace-data-storportpacman.ps1-method">Viewing the trace data (StorportPACMAN.ps1 Method)</a><ul>
+<li><a href="#viewing-the-trace-data-storportpacman.ps1-method">Viewing the trace data (StorportPACMAN.ps1 Method)</a>
+<ul>
 <li><a href="#downloading-the-script">Downloading the script</a></li>
-<li><a href="#importing-the-script-as-a-module">Importing the script as a module</a></li>
 <li><a href="#preparing-our-storport.etl-file">Preparing our storport.etl file</a></li>
+<li><a href="#running-the-script">Running the script</a></li>
 </ul></li>
 </ul></li>
 </ul>
@@ -384,16 +388,20 @@ Function Convert-ETWTraceToReadableFileCSV {
     }
 }
 </code></pre>
-<h3 id="importing-the-script-as-a-module">Importing the script as a module</h3>
-<p>Copy and paste the script into a ps1 file. Next, import it using this command</p>
-<pre class="shell"><code>Import-Module -Name ./StorportPacman.ps1
-</code></pre>
 <h3 id="preparing-our-storport.etl-file">Preparing our storport.etl file</h3>
 <p>We have to use XPerf.exe to convert the ETL file into a CSV before we sort it with StorportPacman.ps1. Download the Windows Performance Toolkit from <a href="https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install">this Windows ADK link</a>.</p>
 <p>Once the toolkit is installed, convert the storport.etl file to a CSV</p>
 <pre class="shell"><code>xperf -i C:\Perflogs\storport.ETL -o C:\Perflogs\raw-xperf.csv -tle
 </code></pre>
 <p>Now finally download the PowerPivot Excel templates from <a href="file:///content/files/Storport/Storport_Excel_PowerPivot-Templates.zip">my website</a> or from <a href="http://wiki.webperfect.ch/index.php?title=Datei:Storport_Excel_PowerPivot-Templates.zip">wiki.webperfect.ch</a></p>
+<h3 id="running-the-script">Running the script</h3>
+<p>Copy and paste the script into a ps1 file. Next, import it using this command</p>
+<pre class="shell"><code>Import-Module -Name ./StorportPacman.ps1
+</code></pre>
+<p>Now lets run the script. The name of your raw-xperf.csv file is important. Unless changed, raw-xperf.csv is the default filename the script looks for The filenames of the PowerPivot templates are sensitive too.</p>
+<pre class="shell"><code># Remember to keep the xlsx and raw-xperf.csv files in the the same folder
+Convert-ETWTraceToReadableFileCSV -WorkFolderPath C:\PerfLogs\
+</code></pre>
 <small><a href="/">Back to index</a><small>
 </body>
 </html>
