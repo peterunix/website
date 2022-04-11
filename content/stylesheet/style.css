@@ -1,9 +1,9 @@
 @font-face {
   font-family: 'SauceCodePro';
-  src: url('/sauce-code-nerd-font-complete.ttf');
+  src: url('/content/files/sauce-code-nerd-font-complete.ttf');
 
   font-family: 'Terminess';
-  src: url('/terminess-nerd-font-complete.ttf');
+  src: url('/content/files/terminess-nerd-font-complete.ttf');
 }
 
 :root{

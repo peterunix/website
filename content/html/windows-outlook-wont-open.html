@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Unixfandom</title>
+  <style type="text/css">
+      code{white-space: pre-wrap;}
+      span.smallcaps{font-variant: small-caps;}
+      span.underline{text-decoration: underline;}
+      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  </style>
+  <link rel="stylesheet" href="../stylesheet/style.css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="/content/stylesheet/style.css">
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title"><a class="title" href=/index.html>Unixfandom</h1>
+</header>
+<nav id="TOC">
+<ul>
+<li><a href="#windows-outlook-wont-open-when-clicked">Windows Outlook won't open when clicked</a><ul>
+<li><a href="#the-problem.">The Problem.</a></li>
+<li><a href="#solution-1-eh">Solution 1 (eh)</a></li>
+<li><a href="#solution-2-prettier">Solution 2 (prettier)</a></li>
+</ul></li>
+</ul>
+</nav>
+<h1 id="windows-outlook-wont-open-when-clicked">Windows Outlook won't open when clicked</h1>
+<h2 id="the-problem.">The Problem.</h2>
+<p>Clicking on Outlook appears to do nothing. This is almost always caused by the OUTLOOK.EXE process being stuck in the background. The simpliest solution is to kill the processes using the Task Manager. This isn't the most convient solution if Outlook get's stuck constantly.</p>
+<p>There's two quick ways of fixing it. Option 1 involves a batch script to kill OUTLOOK.EXE. Option 2 involves creating an Outlook shortcut that kills and starts the process.</p>
+<h2 id="solution-1-eh">Solution 1 (eh)</h2>
+<p>Create a batch script that kills the processes on click.</p>
+<pre class="shell"><code>C:\Windows\System32\taskkill.exe /im outlook.exe /f
+</code></pre>
+<h2 id="solution-2-prettier">Solution 2 (prettier)</h2>
+<p>Create a shortcut for Outlook. Modify the properties of the shortcut and add this line to the "TARGET" field.</p>
+<pre class="shell"><code>C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -command &quot;Stop-Process -Name &#39;outlook&#39; ; Start-Process &#39;C:\Program Files (x86)\Microsoft Office\root\Office16\OUTLOOK.EXE&#39;&quot;
+</code></pre>
+<p>This'll use powershell to kill the previous outlook.exe process and start a new one. It works beautifully and you'd hardly notice a difference.</p>
+<p>Make sure the outlook.exe path is the same for your PC.</p>
+<small><a href="/">Back to index</a><small>
+</body>
+</html>
