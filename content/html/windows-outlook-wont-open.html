@@ -5,11 +5,13 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Unixfandom</title>
-  <style type="text/css">
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
 </head>
@@ -24,9 +26,10 @@
 <header id="title-block-header">
 <h1 class="title"><a class="title" href=/index.html>Unixfandom</h1>
 </header>
-<nav id="TOC">
+<nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#windows-outlook-wont-open-when-clicked">Windows Outlook won't open when clicked</a><ul>
+<li><a href="#windows-outlook-wont-open-when-clicked">Windows Outlook won't open when clicked</a>
+<ul>
 <li><a href="#the-problem.">The Problem.</a></li>
 <li><a href="#solution-1-eh">Solution 1 (eh)</a></li>
 <li><a href="#solution-2-prettier">Solution 2 (prettier)</a></li>
@@ -46,7 +49,7 @@
 <pre class="shell"><code>C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -command &quot;Stop-Process -Name &#39;outlook&#39; ; Start-Process &#39;C:\Program Files (x86)\Microsoft Office\root\Office16\OUTLOOK.EXE&#39;&quot;
 </code></pre>
 <p>This'll use powershell to kill the previous outlook.exe process and start a new one. It works beautifully and you'd hardly notice a difference.</p>
-<p>Make sure the outlook.exe path is the same for your PC.</p>
+<p>Make sure the outlook.exe path is the same for your PC. You should also set the icon for the shortcut to Outlooks.</p>
 <small><a href="/">Back to index</a><small>
 </body>
 </html>
