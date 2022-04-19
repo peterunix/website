@@ -12,8 +12,9 @@
 ;(setq indent-line-function 'insert-tab) ; Tab key doesn't try to match indentation level
 (setq initial-scratch-message ";; Happy Hacking!\n") ; Message displayed in scratchpad 
 (setq confirm-kill-emacs 'y-or-n-p) ; Prompt before killing emacs
-(set-face-attribute 'default nil :font "SauceCodePro Nerd Font" :height 150) ; Font
+;(set-face-attribute 'default nil :font "SauceCodePro Nerd Font" :height 150) ; Font
 ;(set-face-attribute 'default nil :font "TerminessTTF Nerd Font" :height 150)
+(set-face-attribute 'default nil :font "TerminessTTF NF" :height 180)
 (setq backup-directory-alist `(("." . "~/.local/emacs.cache"))) ; Change the location for emacs backup files
 (setq backup-by-copying t) ; Create full file backups
 (setq delete-old-versions t ; Rotate backups
@@ -33,7 +34,8 @@
 (setq show-paren-style 'mixed) ; Highlight matching parenthesis
 (setq-default left-margin-width 2) ; Emacs margins left
 (setq-default right-margin-width 2) ; Emacs margins right
-
+;(setq split-width-threshold 0) ; Open new windows vertically by default
+;(setq split-height-threshold nil) ; Open new windows vertically by default
 
 ;; Package manager setup
 (require 'package)
@@ -79,6 +81,7 @@
   (define-key evil-normal-state-map (kbd "C-w C-s") 'split-and-follow-horizontally)
   (define-key evil-normal-state-map (kbd "C-w C-v")'split-and-follow-vertically)
   (define-key evil-normal-state-map (kbd "C-w C-q")'evil-quit)
+  (define-key evil-normal-state-map (kbd "C-q")' evil-quit)
   (define-key evil-normal-state-map (kbd "C-x C-x C-f")'toggle-maximize-buffer)
   (define-key evil-normal-state-map (kbd "C-b")'switch-to-buffer)
   (evil-mode 1))
@@ -88,6 +91,25 @@
   :ensure t
   :config
   (evil-collection-init))
+
+(use-package evil-escape ; Use C-g to go to normal mode
+  :ensure t
+  :commands evil-escape-mode
+  :init
+  (setq evil-escape-excluded-states '(normal visual multiedit emacs motion)
+        evil-escape-excluded-major-modes '(neotree-mode)
+        evil-escape-key-sequence "jk"
+        evil-escape-delay 0.25)
+  (add-hook 'after-init-hook #'evil-escape-mode)
+  :config
+  ;; no `evil-escape' in minibuffer
+  (cl-pushnew #'minibufferp evil-escape-inhibit-functions :test #'eq)
+
+  (define-key evil-insert-state-map  (kbd "C-g") #'evil-escape)
+  (define-key evil-insert-state-map  (kbd "M-g") #'evil-escape)
+  (define-key evil-replace-state-map (kbd "C-g") #'evil-escape)
+  (define-key evil-visual-state-map  (kbd "C-g") #'evil-escape)
+  (define-key evil-operator-state-map (kbd "C-g") #'evil-escape))
 
 ;; Download Undo-Fu
 (use-package undo-fu
@@ -205,7 +227,6 @@
 (use-package company
   :ensure t
   :config
-  (global-company-mode t)
   (define-key company-active-map (kbd "C-n") 'company-select-next)
   (define-key company-active-map (kbd "C-p") 'company-select-previous)
   (setq company-idle-delay 0.0)
@@ -239,6 +260,7 @@
     "s" 'swiper-isearch
     "wv" 'evil-window-vsplit
     "ws" 'evil-window-split
+    ";" 'eshell
     "q" 'evil-quit
     "wq" 'evil-quit
     "wj" 'evil-window-down
@@ -312,8 +334,8 @@
       (auto-revert-mode)))
 
 ;; Download VTerm
-(use-package vterm
-  :ensure t)
+;(use-package vterm
+;  :ensure t)
 
 ;; Download PDF-Tools
 (use-package pdf-tools
@@ -343,7 +365,10 @@
 
 ;; Download TRAMP
 (use-package tramp
-  :ensure t)
+  :ensure t
+  :init
+  (setq tramp-default-method "plink")
+  )
 
 ;; Download WS-Butler (trim whitespace)
 (use-package ws-butler
@@ -352,25 +377,49 @@
   :ensure t)
 
 ;; Download Eshell
-; Prompt
-(use-package eshell-git-prompt
+(defun eshell-new()
+  "Open a new instance of eshell."
+  (interactive)
+  (eshell 'N))
+
+(defun me/eshell-mode-hook()
+  (me/eshell-add-aliases)
+  (company-mode -1))
+
+(defun me/eshell-add-aliases ()
+"Doc-string."
+  (dolist (var '(("ff" "find-file $1")
+                 ("ssh" "cd /ssh:$1:~")
+                 ("plink" "cd /plink:$1:~")))
+    (add-to-list 'eshell-command-aliases-list var)))
+
+;; (setq eshell-prompt-regexp "^[^#$\n]*[#$] "
+;;       eshell-prompt-function
+;;       (lambda nil
+;;         (concat
+;;          (if (string= (eshell/pwd) (getenv "HOME"))
+;;              "~" (eshell/basename (eshell/pwd)))
+;;          (if (= (user-uid) 0) "# " " > "))))
+
+(use-package eshell
   :ensure t
   :config
-  (eshell-git-prompt-use-theme 'powerline)
-  )
-; Fish-like history autosuggestions
-(use-package esh-autosuggest
-  :defines ivy-display-functions-alist
-  :bind (:map eshell-mode-map
-              ([remap eshell-pcomplete] . completion-at-point))
-  :hook ((eshell-mode . esh-autosuggest-mode)
-         (eshell-mode . eshell-setup-ivy-completion))
-  :init (defun eshell-setup-ivy-completion ()
-          "Setup `ivy' completion in `eshell'."
-          (setq-local ivy-display-functions-alist
-                      (remq (assoc 'ivy-completion-in-region
-                                   ivy-display-functions-alist)
-                            ivy-display-functions-alist))))
+  (add-hook 'eshell-post-command-hook 'me/eshell-mode-hook)
+  (add-hook 'eshell-post-command-hook 'me/eshell-add-aliases)
+  ;(setq display-buffer-alist '(("\\`\\*e?shell" display-buffer-pop-up-window))) ; Always open Eshell in a new window
+)
+
+;; Download Games
+(use-package typit
+  :ensure t)
+(use-package tetris
+  :ensure t)
+(use-package snake
+  :ensure t)
+(use-package pong
+  :ensure t)
+(use-package minesweeper
+  :ensure t)
 
 ;; Untabify on save
 (defvar untabify-this-buffer)
@@ -384,7 +433,7 @@
   (add-hook 'before-save-hook #'untabify-all))
 (add-hook 'prog-mode-hook 'untabify-mode)
 
-; Split and follow new windows automatically
+;; Split and follow new windows automatically
 (defun split-and-follow-horizontally ()
   (interactive)
   (split-window-below)
@@ -396,6 +445,21 @@
   (split-window-right)
   (balance-windows)
   (other-window 1))
+
+;; Open scratchpad in another Window
+(defun scratchpad-other-window-vertically()
+  (interactive)
+  (split-window-right)
+  (balance-windows)
+  (other-window 1)
+  (switch-to-buffer "*scratch*"))
+
+(defun scratchpad-other-window-horizontally()
+  (interactive)
+  (split-window-below)
+  (balance-windows)
+  (other-window 1)
+  (switch-to-buffer "*scratch*"))
 
 ;; Copy Paste from clipboard
 (defun copy-to-clipboard ()
@@ -449,15 +513,21 @@
 (defun my/shutdown()
   (interactive)
   (if (y-or-n-p "Shutdown this computer?")
-      (progn
-        (shell-command "/usr/sbin/poweroff")
-        )
-    (progn
-      (message "Shutdown aborted")
-      )
-    )
-  )
+      (if (eq system-type 'windows-nt)
+          (progn (shell-command "C:/Windows/system32/shutdown.exe /f /s /t 0")))
+    (if (eq system-type 'gnu/linux)
+        (progn (shell-command "/usr/sbin/poweroff")))
+    ))
+(defun my/reboot()
+  (interactive)
+  (if (y-or-n-p "Reboot this computer?")
+      (if (eq system-type 'windows-nt)
+          (progn (shell-command "C:/Windows/system32/shutdown.exe /r /f /t 0")))
+    (if (eq system-type 'gnu/linux)
+        (progn (shell-command "/usr/sbin/reboot")))
+    ))
 (global-set-key (kbd "C-x C-p") 'my/shutdown)
+(global-set-key (kbd "C-x C-r") 'my/reboot)
 
 ;; Quickly switch to previous buffer
 (defun switch-to-last-buffer ()
@@ -476,13 +546,51 @@
 
 ;; Follow 80 column rule
 ;; (setq-default
-;;  whitespace-line-column 80
+;;  whitespace-line-column 8
 ;;  whitespace-style       '(face lines-tail))
 ;; (add-hook 'prog-mode-hook #'whitespace-mode)
 
 ;; Resize text with Alt + and Alt -
 (global-set-key (kbd "M-=") 'text-scale-increase)
 (global-set-key (kbd "M--") 'text-scale-decrease)
+
+;; Window creating
+(define-key evil-normal-state-map (kbd "M-\\") 'scratchpad-other-window-vertically)
+(define-key evil-normal-state-map (kbd "M-|")'scratchpad-other-window-horizontally)
+;; Window resizing
+(global-set-key (kbd "M-[") 'evil-window-decrease-width)
+(global-set-key (kbd "M-]") 'evil-window-increase-width)
+(global-set-key (kbd "M-{") 'evil-window-decrease-height)
+(global-set-key (kbd "M-}") 'evil-window-increase-height)
+;; Window switching
+(global-unset-key (kbd "M-k"))
+(global-unset-key (kbd "M-j"))
+(global-unset-key (kbd "M-h"))
+(global-unset-key (kbd "M-l"))
+(define-key evil-normal-state-map (kbd "M-k") 'evil-window-up)
+(define-key evil-normal-state-map (kbd "M-j") 'evil-window-down)
+(define-key evil-normal-state-map (kbd "M-h") 'evil-window-left)
+(define-key evil-normal-state-map (kbd "M-l") 'evil-window-right)
+;; Window swapping
+(define-key evil-normal-state-map (kbd "M-K") 'evil-window-move-very-top)
+(define-key evil-normal-state-map (kbd "M-J") 'evil-window-move-very-bottom)
+(define-key evil-normal-state-map (kbd "M-H") 'evil-window-move-far-left)
+(define-key evil-normal-state-map (kbd "M-L") 'evil-window-move-far-right)
+;; Workspace switching
+(define-key eyebrowse-mode-map (kbd "M-1") 'eyebrowse-switch-to-window-config-1)
+(define-key eyebrowse-mode-map (kbd "M-2") 'eyebrowse-switch-to-window-config-2)
+(define-key eyebrowse-mode-map (kbd "M-3") 'eyebrowse-switch-to-window-config-3)
+(define-key eyebrowse-mode-map (kbd "M-4") 'eyebrowse-switch-to-window-config-4)
+(define-key eyebrowse-mode-map (kbd "M-5") 'eyebrowse-switch-to-window-config-5)
+(define-key eyebrowse-mode-map (kbd "M-6") 'eyebrowse-switch-to-window-config-6)
+(define-key eyebrowse-mode-map (kbd "M-7") 'eyebrowse-switch-to-window-config-7)
+(define-key eyebrowse-mode-map (kbd "M-8") 'eyebrowse-switch-to-window-config-8)
+(define-key eyebrowse-mode-map (kbd "M-9") 'eyebrowse-switch-to-window-config-9)
+;; General bindings
+(define-key evil-normal-state-map (kbd "M-q") 'evil-quit)
+(define-key evil-normal-state-map (kbd "M-b") 'switch-to-buffer)
+(define-key evil-normal-state-map (kbd "M-s") 'switch-to-last-buffer)
+(define-key evil-normal-state-map (kbd "M-f") 'find-file)
 
 ;; Quickly edit config file
 (global-set-key (kbd "C-c e") (lambda () (interactive) (find-file "~/.emacs.d/init.el")))
@@ -501,17 +609,29 @@
   ;; Since we "killed" it, don't let caller try too
   nil)
 
-(load "~/.emacs.d/exwm/exwm.el")
+;; Stop Emacs daemon
+(defun server-shutdown ()
+  "Save buffers, Quit, and Shutdown (kill) server"
+  (interactive)
+  (save-some-buffers)
+  (kill-emacs))
+
+;; Restart Emacs Daemon
+(defun server-restart()
+  (interactive)
+  (server-force-delete)
+  (server-start))
+
 ;; Garbage collection hack
 (setq gc-cons-threshold (* 2 1000 1000))
-
+;(load "~/.emacs.d/exwm/exwm.el")
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(eshell-prompt-extras ws-butler sudo-edit exwm GCMH ts plz dmenu dired-hide-dotfiles dired-open dired-single elfeed quick-yes mini-frame marginalia vertico which-key vterm vscode-dark-plus-theme undo-tree undo-fu simpleclip rainbow-delimiters quelpa-use-package powershell pdf-tools mini-modeline mentor matrix-client general fzf eyebrowse evil-collection ergoemacs-status epc ement doom-themes doom-modeline counsel company-web company-shell company-php company-org-block company-nginx company-go)))
+   '(edwina dashboard evil-escape eshell-prompt-extras ws-butler sudo-edit exwm GCMH ts plz dmenu dired-hide-dotfiles dired-open dired-single elfeed quick-yes mini-frame marginalia vertico which-key vterm vscode-dark-plus-theme undo-tree undo-fu simpleclip rainbow-delimiters quelpa-use-package powershell pdf-tools mini-modeline mentor matrix-client general fzf eyebrowse evil-collection ergoemacs-status epc ement doom-themes doom-modeline counsel company-web company-shell company-php company-org-block company-nginx company-go)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
