@@ -12,7 +12,12 @@
 :root{
     --font: ComicMono;
     --bg-color: #222222;
-    --headline1-font-size: 36px;
+    --headline1-font-size: 25px;
+    --headline2-font-size: 21px;
+    --headline3-font-size: 21px;
+    --headline4-font-size: 21px;
+    --headline5-font-size: 21px;
+    --headline6-font-size: 21px;
     --headline-color: #db7093;
     --link-color: #db7093;
     --text-color: #fefefe;
@@ -48,6 +53,13 @@ body.index>li{
     padding: 5px 0px;
 }
 
+h1{font-size: var(--headline1-font-size)}
+h2{font-size: var(--headline2-font-size)}
+h3{font-size: var(--headline3-font-size)}
+h4{font-size: var(--headline4-font-size)}
+h5{font-size: var(--headline5-font-size)}
+h6{font-size: var(--headline6-font-size)}
+
 p{
     font-size: var(--text-font-size);
     color: var(--text-color);
@@ -75,16 +87,13 @@ h1, h2, h3, h4, h5, h6{
 }
 
 /*Color scheme for code blocks*/
-.shell, pre{
+.powershell .shell, pre{
     background: var(--code-background);
+    color: var(--code-color);
     overflow-x: auto; /* Toggle horizontal scrollbar */
     overflow-y: visible; /* Hide vertical scrollbar */
-    padding: 10px;
-}
-
-code{
     font-family: var(--code-font);
-    color: var(--code-color);
+    padding: 10px;
 }
 
 /*Scrollbar theming*/
