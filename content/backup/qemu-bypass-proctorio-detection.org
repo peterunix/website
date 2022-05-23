@@ -1,0 +1,88 @@
+* Bypassing VM detection on Proctorio 
+** Preface
+No, this is not for cheating.
+I want to be able to use Proctorio on my Linux machine.
+
+** Proctorio features
+Proctorio's VM detection is limited to the capabilities of the Chrome API's
+
+https://old.reddit.com/r/AskNetsec/comments/iquxdb/can_a_browser_extension_scan_procceses_detect/
+https://old.reddit.com/r/UBC/comments/j0gq1m/psa_forced_to_use_proctorio_then_run_a_virtual/
+
+1. Reads CPU model information
+2. Reads and manages tabs
+3. Reads running chrome extensions
+4. Reads running processes
+5. Screen captures the desktop
+6. Tracks eye movement
+7. Tracks keyboard input. It compares how much you use the keyboard and determines whether to flag you.
+
+** Reverse enginerring
+I was able to get a basic understanding of how it detects VMS through some reverse engineering of the chrome extension.
+
+I downloaded the extension using this template:
+
+#+begin_src shell
+https://clients2.google.com/service/update2/crx?response=redirect&acceptformat=crx2,crx3&prodversion=[VERSION]&x=id%3D[EXTENSION_ID]%26installsource%3Dondemand%26uc
+#+end_src
+
+Substitute [VERSION] with your chrome version.
+
+
+Substitute [EXTENSION_ID] with the id found in the chrome store url:
+
+#+begin_src shell
+chrome.google.com/webstore/detail/proctorio/[fpmapakogndmenjcfoajifaaonnkpkei]
+#+end_src
+
+*** Extracting the CRX file
+Crx files are renamed zip files.
+The archive contains heavily obfuscated javascript along with equally obfuscated file names.
+
+#+begin_src shell
+assets/
+_metadata/
+_locales/
+webassets/
+AGREEMENT.txt
+LICENSE.txt
+manifest.json
+proctorio.nmf
+SECURITY.txt
+#+end_src
+
+*** Analyzing the files
+Along with Vim, I used /grep -io <word> */ to parse the code in the assets directory.
+
+The file "Js2Q.js" appears to list all the system and security checks the proctor software uses.
+It runs some type of function when ever the following events occur:
+
+#+begin_src shell
+blur focus focusin focusout load resize scroll unload click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup error contextmenu
+#+end_src
+
+The software also appears to collect the CPU architecture, features, model name, core count, and usage.
+
+#+begin_src shell
+cpu.getInfo((function(n){for(var e=[n.archName,n.features,Kr(n.modelName),n.numOfProcessors,[],[],[]],r=0,o=0,u=0;u<n.processors.length;u++)e[4].push([n.processors[u].usage.idle,n.processors[u].usage.kernel,n.processors[u].usage.total,n.processors[u].usage.user,o])
+#+end_src
+
+Here's a list of blacklisted names for microphones and webcam devices.
+I notice it blacklists vmware, virtualbox, and parallel. I don't see qemu or kvm listed here.
+
+#+begin_src shell
+"virtual microphone","virtual audio","splitcam","manycam","logmein","parallels access sound","parallels audio controller","avermedia","vmware","vdp source","vixs puretv","airparrot","virtualbox","sound siphon","bytescout","blackmagic","soundflower","what u hear","nomachine","screaming bee","apowersoft_audiodevice","remote proctor","magic sound","morphvox audio","manycam virtual microphone","logmeinsounddriver","airparrot","remote audio","line 1 (virtual audio cable)","morphvox audio","pro tools aggregate i/o","autoaggdevice","procasteraudioredirector","twat 69","microphone (screaming bee audio)","cable output (vb-audio virtual cable)","splashtop","ishowu"],Wr=["virtual camera","virtual webcam","virtual device","virtual driver","webcammax capture","fake webcam","openni","sparkocam","ispy","vlc capture","ucanvcam","manycam","magiccamera","splitcam","ip camera","mjpeg camera","xsplitbroadcaster","scanner mouse","logmein","hava video device","hava remote video device","hava video crossbar","hava remote video crossbar","vmware","pg camera for windows store apps","pg splitter","cyberlink webcam splitter","hp webcam splitter","cyberlink web camera filter","vdp source","vixs puretv","dxtory video","hp web camera filter","airparrot","camera plus","asus virtual","virtualbox","corel camera","corelscreencapture","live! cam virtual","iglasses","bytescout","blackmagic","arcsoft","decklink video capture","camtwist","professional financial camera","decklink video capture","webcam sharing manager","srp5702","00) depth","00 depth","droidcam source 3","droidcam source 2","droidcam source 1","droidcam source mini (240p)","thinkvantage virtual camera","arcsoft webcam sharing manager","tridef smartcam","splashtop","ishowu","Hauppauge WinTV","snap camera","Snap Camera"],Gr=["vmware","virtualbox","parallels access sound","parallels audio controller"],Vr=["bytescout","blackmagic","professional financial camera","decklink video capture","hauppauge","nomachine","soundflower
+#+end_src
+
+I'm not sure if this is code for viewing the running procceses
+
+#+begin_src shell
+{state:1,openProcesses:[]});else if(2===n.Code)t({state:2,openProcesses:[]});else if(3===n.Code){var e={state:3,openProcesses:[]};if(n.Processes.length>0)for(var r=0;r<n.Processes.length;r++)e.openProcesses.push(n.Processes[r]);t(e)}else 4===n.Code&&t({state:4,openProcesses:[]})}):t({state:0,openProcesses:[]})}).catch(()=>{t({state:0,openProcesses:[]}
+#+end_src
+
+Inside this file is code for tracking eye movement as well as extensions.
+The file Zrqw.js contains the code for managing tabs.
+
+** Hiding Qemu [incomplete]
+The software checks CPU information as well as the name of webcam and microphone.
+We'll passthrough our webcam and microphone directly. We'll set the CPU model to be the same as our host machine and disable the hypervisor bit from being advertised.

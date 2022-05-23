@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,54 +32,59 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#custom-keymap-and-font-in-tty">Custom keymap and font in TTY</a>
+<li><a href="#custom-keymap-and-font-in-tty"># Custom keymap and font in
+TTY</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#custom-keymap-tty">Custom keymap TTY</a>
-<ul>
-<li><a href="#dependencies">Dependencies</a></li>
-<li><a href="#copying-the-us-qwerty-keymap">Copying the US qwerty keymap</a></li>
-<li><a href="#listing-keycode-of-a-keypress">Listing keycode of a keypress</a></li>
-<li><a href="#modifying-the-keymap">Modifying the keymap</a></li>
-</ul></li>
-<li><a href="#custom-font-tty">Custom font TTY</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#custom-keymap-tty">## Custom keymap TTY</a></li>
+<li><a href="#custom-font-tty">## Custom font TTY</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="custom-keymap-and-font-in-tty">Custom keymap and font in TTY</h1>
-<h2 id="preface">Preface</h2>
-<p>Generating a custom keymap in the TTY as well as setting a custom font. I'll be setting the caps and menu key as a CTRL modifier.</p>
-<h2 id="custom-keymap-tty">Custom keymap TTY</h2>
-<h3 id="dependencies">Dependencies</h3>
-<p>Console-data contains (amongst other things) a collection of keymaps. We'll copy the us qwerty keymap, modify it, then load it.</p>
-<pre class="shell"><code>sudo apt install console-common console-data
+<h1 id="custom-keymap-and-font-in-tty"># Custom keymap and font in
+TTY</h1>
+<h2 id="preface">## Preface</h2>
+<p>Here's how to setup a custom keymap for your TTY, as well as
+rebinding the caps key to CTRL.</p>
+<h2 id="custom-keymap-tty">## Custom keymap TTY</h2>
+<p>The ConsoleData package contains a dozens of different keymaps. I'm
+copying the US Qwery kmap to a plain text file. From there we can modify
+which keycodes do which things.</p>
+<pre class="shell"><code>sudo apt install -y console-common console-data
+zcat /usr/share/keymaps/i386/qwerty/us.kmap.gz &gt; us.kmap
 </code></pre>
-<h3 id="copying-the-us-qwerty-keymap">Copying the US qwerty keymap</h3>
-<p>We'll edit this file later.</p>
-<pre class="shell"><code>zcat /usr/share/keymaps/i386/qwerty/us.kmap.gz &gt; us.kmap
-</code></pre>
-<h3 id="listing-keycode-of-a-keypress">Listing keycode of a keypress</h3>
-<p>Run <em>showkey</em> to display the keycode for each key you press. Wait 10 seconds without pressing a single key to exit the program.</p>
-<p>Here's the output when I press the Caps and Menu key:</p>
+<p>I used the <strong><strong>showkey</strong></strong> command to
+display the keycode for each key I press. This is how I know which
+keycode coorlates to the caps key, ctrl key, etc. Wait 10 seconds
+without pressing a key to have the program terminate.</p>
+<p>Here's what the output of <strong><strong>showkey</strong></strong>
+looks like. I pressed the "caps" key and then the "menu" key.</p>
 <pre class="shell"><code>keycode 58 press
 keycode 58 release
 keycode 127 press
 keycode 127 release
 </code></pre>
-<h3 id="modifying-the-keymap">Modifying the keymap</h3>
-<p>Edit the us.kmap file we copied.</p>
-<p>I searched for the keycode for the Caps key and changed the value to Control</p>
+<p>Edit the us.kmap file we created earlier. I used vim to quickly
+search the keycode for the CAPS key. I then changed the value of keycode
+58 from "Caps" to "Control"</p>
 <pre class="shell"><code># Original caps key
 keycode 58 = Caps
 
 # Modified
 keycode 58 = Control
 </code></pre>
-<p>The keycode 127 wasn't listed so I appended it to the bottom of the file:</p>
+<p>Keycode 127 was for the menukey on my keyboard. It wasn't listed in
+the us.kmap file. I added a new line to the bottom of it which seemed to
+work perfectly.</p>
 <pre class="shell"><code>keycode 127 = Control
 </code></pre>
-<h2 id="custom-font-tty">Custom font TTY</h2>
-<p>Edit /etc/default/console-setup and modify the following variables:</p>
+<p>Finally we can load the keymap using this command. I added it as a
+cronjob to apply after reboot.</p>
+<pre class="shell"><code>loadkey us.kmap
+</code></pre>
+<h2 id="custom-font-tty">## Custom font TTY</h2>
+<p>Edit /etc/default/console-setup and modify the following
+variables:</p>
 <pre class="shell"><code>FONTFACE=&quot;TerminessTTF Nerd Font Mono&quot;
 FONTSIZE=&quot;24x12&quot;
 </code></pre>

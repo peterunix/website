@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,27 +32,63 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#troubleshooting-pbp-problems">Troubleshooting PBP problems</a>
+<li><a href="#troubleshooting-pbp-problems"># Troubleshooting PBP
+problems</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#powerkey-shuts-off-machine">Powerkey shuts off machine</a></li>
-<li><a href="#cant-boot-at-all-after-flashing-emmc">Can't boot at all after flashing EMMC</a></li>
-<li><a href="#removing-the-bootloader">Removing the bootloader</a></li>
-<li><a href="#loose-screws-that-fall-out">Loose screws that fall out</a></li>
-<li><a href="#blinking-red-light-and-not-booting">Blinking red light and not booting</a></li>
-<li><a href="#damaged-thermal-pad.-getting-a-replacement.">Damaged thermal pad. Getting a replacement.</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#powerkey-shuts-off-machine">## Powerkey shuts off
+machine</a></li>
+<li><a href="#cant-boot-at-all-after-flashing-emmc">## Can't boot at all
+after flashing EMMC</a></li>
+<li><a href="#removing-the-bootloader">## Removing the
+bootloader</a></li>
+<li><a href="#loose-screws-that-fall-out">## Loose screws that fall
+out</a></li>
+<li><a href="#blinking-red-light-and-not-booting">## Blinking red light
+and not booting</a></li>
+<li><a href="#damaged-thermal-pad.-getting-a-replacement.">## Damaged
+thermal pad. Getting a replacement.</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="troubleshooting-pbp-problems">Troubleshooting PBP problems</h1>
-<h2 id="preface">Preface</h2>
-<p>I'm addressing common problem with the pbp more than anything. Go down the list until you find something that's relevant to you.</p>
-<h2 id="powerkey-shuts-off-machine">Powerkey shuts off machine</h2>
-<p>The powerkey is not in the most ideal locations. Edit /etc/systemd/logind.conf and change "HandlePowerKey=poweroff" to "HandlePowerKey=ignore"</p>
-<h2 id="cant-boot-at-all-after-flashing-emmc">Can't boot at all after flashing EMMC</h2>
-<p>You could either use an emmc to usb adapter to reflash your EMMC (LAME). You could use your official pine64 UART cable to see if you could fix the problem that way (EH). The third option is that you carefully remove the pinebooks back plate with the display opened. It's important to open the display before removing the back panel to prevent the flimsy plastic or chassis from cracking (yup, that could happen). Once opened, flip the emmc switch to disable the emmc (<a href="https://wiki.pine64.org/wiki/Pinebook_Pro#Key_Internal_Parts">reference</a>). With the laptop still open, begin the booting from your microsd. Once you see the LED turn green, quickly flip the switch to turn on the emmc again. Since the EMMC is not present, the pinebook first boots from the micro-sd. Our goal is to turn on the EMMC early on in the kernel's boot up phase, so this way the emmc gets recognized. If you flip the switch to late, the EMMC will not appear as a drive. Once booted, you could either reflash a new pinebook image or remove the bootloader from the emmc.</p>
-<h2 id="removing-the-bootloader">Removing the bootloader</h2>
-<p>Uboot resides within the first 35 or so megabytes of the drive. This is why you end up seeing free space preceding the boot partition of your drive. Without this free space, uboot would be overwriting your bootfiles, so it's important you add it if you're ever doing any manual partitioning (i.e installing Gentoo). I'm including two methods. The first blindly overwrites the beginning of the drive - potentially damaging the boot partition. The second specifically removes the parts of the drive containing uboot, keeping your boot parition safe. If you don't care about being able to boot from the emmc, use the first method.</p>
+<h1 id="troubleshooting-pbp-problems"># Troubleshooting PBP
+problems</h1>
+<h2 id="preface">## Preface</h2>
+<p>I'm addressing common problem with the pbp more than anything. Go
+down the list until you find something that's relevant to you.</p>
+<h2 id="powerkey-shuts-off-machine">## Powerkey shuts off machine</h2>
+<p>The powerkey is not in the most ideal locations. Edit
+/etc/systemd/logind.conf and change "HandlePowerKey=poweroff" to
+"HandlePowerKey=ignore"</p>
+<h2 id="cant-boot-at-all-after-flashing-emmc">## Can't boot at all after
+flashing EMMC</h2>
+<p>You could either use an emmc to usb adapter to reflash your EMMC
+(LAME). You could use your official pine64 UART cable to see if you
+could fix the problem that way (EH). The third option is that you
+carefully remove the pinebooks back plate with the display opened. It's
+important to open the display before removing the back panel to prevent
+the flimsy plastic or chassis from cracking (yup, that could happen).
+Once opened, flip the emmc switch to disable the emmc (<a
+href="https://wiki.pine64.org/wiki/Pinebook_Pro#Key_Internal_Parts">reference</a>).
+With the laptop still open, begin the booting from your microsd. Once
+you see the LED turn green, quickly flip the switch to turn on the emmc
+again. Since the EMMC is not present, the pinebook first boots from the
+micro-sd. Our goal is to turn on the EMMC early on in the kernel's boot
+up phase, so this way the emmc gets recognized. If you flip the switch
+to late, the EMMC will not appear as a drive. Once booted, you could
+either reflash a new pinebook image or remove the bootloader from the
+emmc.</p>
+<h2 id="removing-the-bootloader">## Removing the bootloader</h2>
+<p>Uboot resides within the first 35 or so megabytes of the drive. This
+is why you end up seeing free space preceding the boot partition of your
+drive. Without this free space, uboot would be overwriting your
+bootfiles, so it's important you add it if you're ever doing any manual
+partitioning (i.e installing Gentoo). I'm including two methods. The
+first blindly overwrites the beginning of the drive - potentially
+damaging the boot partition. The second specifically removes the parts
+of the drive containing uboot, keeping your boot parition safe. If you
+don't care about being able to boot from the emmc, use the first
+method.</p>
 <pre class="shell"><code># I forgot how many megabytes of space uboot takes
 # Method 1 (destructive...maybe)
 dd if=/dev/zero of=/dev/BLKDEV bs=1M count=35 conv=fsync
@@ -58,12 +98,26 @@ dd if=/dev/zero of=/dev/BLKDEV bs=32k seek=1 conv=fsync &amp;&gt;/dev/null
 dd if=/dev/zero of=/dev/BLKDEV bs=64k seek=128 conv=fsync &amp;&gt;/dev/null
 dd if=/dev/zero of=/dev/BLKDEV bs=64k seek=192 conv=fsync &amp;&gt;/dev/null
 </code></pre>
-<h2 id="loose-screws-that-fall-out">Loose screws that fall out</h2>
-<p>Some people reported that their screws to the bottom plate would fall out after sometime. I've never experienced this, but I still took the liberty of preventing it from happening. Go to the auto parts section of any store and get yourself either low strength or medium strength threadlocker. Avoid getting high strength threadlocker since you obviously still want to be able to easily unscrew them in the future. Add that to your Pinebook Pro's screws and you're good to go. I used Permatex Threadlocker Blue (Medium Strength) 24200 which I bought from Walmart. It works just fine.</p>
-<h2 id="blinking-red-light-and-not-booting">Blinking red light and not booting</h2>
-<p>Pretty sure this is indicative of a kernel panic. Nothing will be displayed on the screen. The only way to tell what's going on is to use the UART cable for the pinebook pro. Buy it if you don't have it. It's useful.</p>
-<h2 id="damaged-thermal-pad.-getting-a-replacement.">Damaged thermal pad. Getting a replacement.</h2>
-<p>Purchase yourself a 4mm thermal pad from Amazon and you'll be all set. Cut a 1 inch by 1 inch square.</p>
+<h2 id="loose-screws-that-fall-out">## Loose screws that fall out</h2>
+<p>Some people reported that their screws to the bottom plate would fall
+out after sometime. I've never experienced this, but I still took the
+liberty of preventing it from happening. Go to the auto parts section of
+any store and get yourself either low strength or medium strength
+threadlocker. Avoid getting high strength threadlocker since you
+obviously still want to be able to easily unscrew them in the future.
+Add that to your Pinebook Pro's screws and you're good to go. I used
+Permatex Threadlocker Blue (Medium Strength) 24200 which I bought from
+Walmart. It works just fine.</p>
+<h2 id="blinking-red-light-and-not-booting">## Blinking red light and
+not booting</h2>
+<p>Pretty sure this is indicative of a kernel panic. Nothing will be
+displayed on the screen. The only way to tell what's going on is to use
+the UART cable for the pinebook pro. Buy it if you don't have it. It's
+useful.</p>
+<h2 id="damaged-thermal-pad.-getting-a-replacement.">## Damaged thermal
+pad. Getting a replacement.</h2>
+<p>Purchase yourself a 4mm thermal pad from Amazon and you'll be all
+set. Cut a 1 inch by 1 inch square.</p>
 <small><a href="/">Back to index</a><small>
 </body>
 </html>

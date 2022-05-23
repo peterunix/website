@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,35 +32,41 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#setting-up-an-ftp-over-tls">Setting up an FTP over TLS</a>
+<li><a href="#setting-up-an-ftp-over-tls"># Setting up an FTP over
+TLS</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#dependencies">Dependencies</a></li>
-<li><a href="#creating-ssl-certificate">Creating SSL certificate</a></li>
-<li><a href="#configuration">Configuration</a></li>
-<li><a href="#adding-a-new-ftp-user">Adding a new FTP user</a></li>
-<li><a href="#restartingenabling-the-service">Restarting/Enabling the service</a></li>
-<li><a href="#connecting-using-lftp">Connecting using lftp</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#dependencies">## Dependencies</a></li>
+<li><a href="#creating-ssl-certificate">## Creating SSL
+certificate</a></li>
+<li><a href="#configuration">## Configuration</a></li>
+<li><a href="#adding-a-new-ftp-user">## Adding a new FTP user</a></li>
+<li><a href="#restartingenabling-the-service">## Restarting/Enabling the
+service</a></li>
+<li><a href="#connecting-using-lftp">## Connecting using lftp</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="setting-up-an-ftp-over-tls">Setting up an FTP over TLS</h1>
-<h2 id="preface">Preface</h2>
-<p>Here's me documenting how to setup VSFTP on a home server. I'm using a self-signed SSL certificate along with the <em>lftp</em> client to connect to the server.</p>
-<h2 id="dependencies">Dependencies</h2>
+<h1 id="setting-up-an-ftp-over-tls"># Setting up an FTP over TLS</h1>
+<h2 id="preface">## Preface</h2>
+<p>Here's me documenting how to setup VSFTP on a home server. I'm using
+a self-signed SSL certificate along with the <em>lftp</em> client to
+connect to the server.</p>
+<h2 id="dependencies">## Dependencies</h2>
 <p><em>Very Secure FTP Daemon</em> (server)</p>
 <pre><code>apt install vsftpd
 </code></pre>
 <p>Install <em>lftp</em> on the client machine to access FTPS</p>
 <pre><code>apt install lftp
 </code></pre>
-<h2 id="creating-ssl-certificate">Creating SSL certificate</h2>
+<h2 id="creating-ssl-certificate">## Creating SSL certificate</h2>
 <p>SSL will provide encryption for file transfers and logins.</p>
 <pre><code>mkdir -p /etc/vsftpd/ssl
 openssl req -x509 -nodes -newkey rsa:2048 -keyout /etc/vsftpd/ssl/vsftpd.key -out /etc/vsftpd/ssl/vsftpd.pub -days 5000
 </code></pre>
-<h2 id="configuration">Configuration</h2>
-<p>I copied and tweaked the config from another website. Truth be told, I don't know what every option does.</p>
+<h2 id="configuration">## Configuration</h2>
+<p>I copied and tweaked the config from another website. Truth be told,
+I don't know what every option does.</p>
 <pre><code># Add this to the new /etc/vsftpd.conf
 
 listen=YES
@@ -90,7 +100,7 @@ userlist_enable=YES
 userlist_file=/etc/vsftpd.userlist
 userlist_deny=NO
 </code></pre>
-<h2 id="adding-a-new-ftp-user">Adding a new FTP user</h2>
+<h2 id="adding-a-new-ftp-user">## Adding a new FTP user</h2>
 <p>This will be the only user that has FTP access.</p>
 <pre><code>useradd -m ftpuser
 passwd ftpuser
@@ -98,12 +108,14 @@ passwd ftpuser
 <p>Append the user to the vsftpd.userlist</p>
 <pre><code>echo &quot;ftpuser&quot; &gt;&gt; /etc/vsftpd.userlist
 </code></pre>
-<h2 id="restartingenabling-the-service">Restarting/Enabling the service</h2>
+<h2 id="restartingenabling-the-service">## Restarting/Enabling the
+service</h2>
 <pre><code>systemctl restart vsftpd
 systemctl enable vsftpd
 </code></pre>
-<h2 id="connecting-using-lftp">Connecting using lftp</h2>
-<p>We need to save the certificate on the client machine and then configure lftp to use it.</p>
+<h2 id="connecting-using-lftp">## Connecting using lftp</h2>
+<p>We need to save the certificate on the client machine and then
+configure lftp to use it.</p>
 <pre><code>echo | \
     openssl s_client -showcerts -connect IPADDRESS:21 -starttls ftp 2&gt; /dev/null | \
     sed -n &#39;/BEGIN CERTIFICATE/,/END CERTIFICATE/p&#39; &gt; ~/.config/lftp/mycert.crt

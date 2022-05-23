@@ -1,9 +1,9 @@
-* Windows Powershell Wake On Lan Multiple Computers
-** How it works
+* # Windows Powershell Wake On Lan Multiple Computers
+** ## How it works
 It takes in a comma separated lists of mac addressses, constructs a WOL packet, then sends it out using the .net UDP Client object.
 The WOL packet is sent out five times for each mac address.
 
-** The script
+** ## The script
 #+begin_src shell
 # WakeOnLan using a comma separated list of mac addresses 
 # $env:macAddrs = "ee:ee:ee:ee:ee:ee,ff:ff:ff:ff:ff:ff"
@@ -37,7 +37,7 @@ for($i=0;$i -lt $macArray.Length; $i++){
 }
 #+end_src
 
-** Usage
+** ## Usage
 #+begin_src shell
 $env:macAddrs = "ee:ee:ee:ee:ee:ee,ff:ff:ff:ff:ff:ff"
 ./script.sh

@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,17 +32,19 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#bspwm-dynamic-borders">BSPWM Dynamic Borders</a>
+<li><a href="#bspwm-dynamic-borders"># BSPWM Dynamic Borders</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#example">Example</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#example">## Example</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="bspwm-dynamic-borders">BSPWM Dynamic Borders</h1>
-<h2 id="preface">Preface</h2>
-<p>Dynamically change the border size when there is either a single node or multiple nodes on the focused desktop</p>
-<p>Add "/path/to/script &amp;" to your BSPWMRC to make use of this script</p>
+<h1 id="bspwm-dynamic-borders"># BSPWM Dynamic Borders</h1>
+<h2 id="preface">## Preface</h2>
+<p>Dynamically change the border size when there is either a single node
+or multiple nodes on the focused desktop</p>
+<p>Add "/path/to/script &amp;" to your BSPWMRC to make use of this
+script</p>
 <pre class="shell"><code>#!/bin/sh
 # Border size when there is one node on desktop and when there are multiple node
 s
@@ -72,7 +78,7 @@ _Main(){
 
 _Main &lt; &quot;$dynamicborder_fifo&quot;
 </code></pre>
-<h2 id="example">Example</h2>
+<h2 id="example">## Example</h2>
 <p>Here's a gif showcasing how it works</p>
 <small><a href="/">Back to index</a><small>
 </body>

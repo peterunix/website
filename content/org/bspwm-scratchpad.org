@@ -1,6 +1,6 @@
-* Better scratchpad bspwm
+* # Better scratchpad bspwm
 
-** Preface
+** ## Preface
 The scratchpad scripts I found for bspwm SUCK.
 Some either stop working if you kill the terminal or bug out when you manage your window states.
 Here's a script I wrote that get's the job done RIGHT!
@@ -9,7 +9,7 @@ bspwm-scratch.png
 
 I'm running tmux if you were wondering.
 
-** Setup stuff
+** ## Setup stuff
 The "scratchy" script checks to see if a terminal with the classname "scratchy" exists.
 If it doesn't exist, it creates it. If it does exist, it hides it.
 

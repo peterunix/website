@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,35 +32,47 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#using-lemonbar-with-bspwm">Using lemonbar with bspwm</a>
+<li><a href="#using-lemonbar-with-bspwm"># Using lemonbar with bspwm</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#adding-xft-support">Adding XFT support</a></li>
-<li><a href="#the-lemonconfig-script">The lemonconfig script</a></li>
-<li><a href="#how-does-it-work">How does it work?</a>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#adding-xft-support">## Adding XFT support</a></li>
+<li><a href="#the-lemonconfig-script">## The lemonconfig script</a></li>
+<li><a href="#how-does-it-work">## How does it work?</a>
 <ul>
-<li><a href="#modules">Modules</a></li>
-<li><a href="#fifo-file-named-pipe">Fifo file (named pipe)</a></li>
-<li><a href="#fyi">FYI</a></li>
+<li><a href="#modules">### Modules</a></li>
+<li><a href="#fifo-file-named-pipe">### Fifo file (named pipe)</a></li>
+<li><a href="#fyi">### FYI</a></li>
 </ul></li>
-<li><a href="#image">Image</a></li>
-<li><a href="#references">References</a></li>
+<li><a href="#image">## Image</a></li>
+<li><a href="#references">## References</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="using-lemonbar-with-bspwm">Using lemonbar with bspwm</h1>
-<h2 id="preface">Preface</h2>
-<p>The Arch Wiki doesn't provide any information on how to get lemonbar setup with workspace switching, window titles, etc. Most people have their custom bars run on a timer. We're going to do them one better and have our script only update PARTS of our bar when necessary. This is going make things run so much more efficiently and make displaying workspaces possible. I'm citing these two pages:</p>
-<p><a href="https://gitlab.com/protesilaos/dotfiles/-/blob/v2.2.0/bin/bin/melonpanel">https://gitlab.com/protesilaos/dotfiles/-/blob/v2.2.0/bin/bin/melonpanel</a></p>
-<p><a href="https://raw.githubusercontent.com/BrodieRobertson/scripts/master/lemonbar/lemonconfig">https://raw.githubusercontent.com/BrodieRobertson/scripts/master/lemonbar/lemonconfig</a></p>
-<h2 id="adding-xft-support">Adding XFT support</h2>
-<p>Lemonbar doesn't work with glyph fonts, such as the NerdFonts. Compile this fork of lemonbar to get your fonts working. This is optional.</p>
+<h1 id="using-lemonbar-with-bspwm"># Using lemonbar with bspwm</h1>
+<h2 id="preface">## Preface</h2>
+<p>The Arch Wiki doesn't provide any information on how to get lemonbar
+setup with workspace switching, window titles, etc. Most people have
+their custom bars run on a timer. We're going to do them one better and
+have our script only update PARTS of our bar when necessary. This is
+going make things run much more efficiently and make displaying
+workspaces possible. I'm citing these two pages:</p>
+<p><a
+href="https://gitlab.com/protesilaos/dotfiles/-/blob/v2.2.0/bin/bin/melonpanel">Protesilaos
+MelonPanel Config</a></p>
+<p><a
+href="https://raw.githubusercontent.com/BrodieRobertson/scripts/master/lemonbar/lemonconfig">Brodie
+Robertsons Lemonbar Config</a></p>
+<h2 id="adding-xft-support">## Adding XFT support</h2>
+<p>Lemonbar doesn't work with glyph fonts, such as the NerdFonts.
+Compile this fork of lemonbar to get your fonts working. This is
+optional.</p>
 <pre class="shell"><code>git clone https://github.com/drscream/lemonbar-xft.git
 cd lemonbar-xft
 sudo make install
 </code></pre>
-<h2 id="the-lemonconfig-script">The lemonconfig script</h2>
-<p>This is my fork of BrodieRobertson's lemonbar script. I'll explain the nitty gritty of the script at the end of this page</p>
+<h2 id="the-lemonconfig-script">## The lemonconfig script</h2>
+<p>This is my fork of BrodieRobertson's lemonbar script. I'll explain
+the nitty gritty of the script at the end of this page</p>
 <pre class="shell"><code>#!/bin/bash
 #A fork of Brodie Robertsons lemonbar script with ideas taken from Protesilaos&#39; &quot;melonpanel&quot;
 #https://gitlab.com/protesilaos/dotfiles/-/blob/v2.2.0/bin/bin/melonpanel
@@ -137,7 +153,7 @@ _Main(){
 _Main &lt; &quot;$lemonbar_fifo&quot;
 #end_src
 
-** Usage
+** ## Usage
 Here&#39;s a launcher script that I have run with bspwm.
 #+begin_src shell
 #!/bin/sh
@@ -146,25 +162,45 @@ lemonconfig | lemonbar -p \
        -f &#39;TerminessTTF Nerd Font Mono:size=13&#39; \
        -g x27
 </code></pre>
-<h2 id="how-does-it-work">How does it work?</h2>
-<h3 id="modules">Modules</h3>
-<p>Each of your modules is just a function that ends outputting plain text.</p>
-<p>The "_Format" module was written by Brodie, and it adds some lemonbar syntax to arguments passed to, allowing for some more stylish modules.</p>
-<p>The "_Format" function isn't used in my fork, but it's still included.</p>
-<p>You'll notice the "_Modules" function echoes out a character and then the output of a module.</p>
-<p>The reason for this is that our loop in "_Main" uses a simple regex to run a particular command if a line contains a specific pattern.</p>
-<p>Adding a letter to the beginning of each line makes parsing the line A LOT simpler.</p>
-<h3 id="fifo-file-named-pipe">Fifo file (named pipe)</h3>
-<p>A named pipe acts the same a traditional pipe, except it stores the stdout into a file which can be used as stdin.</p>
-<p>Every time one of our modules updates, it outputs the content to the named pipe.</p>
-<p>The same goes for bspwm. We output data to the same named pipe whenever we select different nodes or switch desktops.</p>
-<p>The "_Main" function uses a "read" prompt to run a case statement on each line that is sent to the named pipe.</p>
-<p>If the line contains text with the pattern "node*", the case statement updates the variable "window_name" and echoes out the string to lemonbar</p>
-<p>So if our "_Modules" function hasn't automatically looped yet, but our current desktop has changed, then the script updates the workspace module and displays the output to the bar. The stored variable data for the other modules remains unchanged.</p>
-<h3 id="fyi">FYI</h3>
-<p>The "_Workspaces" function was from BrodieRobertson and it really sucks (no offense).</p>
-<p>I only use "_CurrentWorkspace". You have to tweak these to match your needs.</p>
-<p>The battery module sources an external script to show my battery status.</p>
+<h2 id="how-does-it-work">## How does it work?</h2>
+<h3 id="modules">### Modules</h3>
+<p>Each of your modules is just a function that ends outputting plain
+text.</p>
+<p>The "_Format" module was written by Brodie, and it adds
+some lemonbar syntax to arguments passed to, allowing for some more
+stylish modules.</p>
+<p>The "_Format" function isn't used in my fork, but it's
+still included.</p>
+<p>You'll notice the "_Modules" function echoes out a
+character and then the output of a module.</p>
+<p>The reason for this is that our loop in "_Main" uses a
+simple regex to run a particular command if a line contains a specific
+pattern.</p>
+<p>Adding a letter to the beginning of each line makes parsing the line
+A LOT simpler.</p>
+<h3 id="fifo-file-named-pipe">### Fifo file (named pipe)</h3>
+<p>A named pipe acts the same a traditional pipe, except it stores the
+stdout into a file which can be used as stdin.</p>
+<p>Every time one of our modules updates, it outputs the content to the
+named pipe.</p>
+<p>The same goes for bspwm. We output data to the same named pipe
+whenever we select different nodes or switch desktops.</p>
+<p>The "_Main" function uses a "read" prompt to run a case
+statement on each line that is sent to the named pipe.</p>
+<p>If the line contains text with the pattern "node*", the case
+statement updates the variable "window_name" and echoes out
+the string to lemonbar</p>
+<p>So if our "_Modules" function hasn't automatically looped
+yet, but our current desktop has changed, then the script updates the
+workspace module and displays the output to the bar. The stored variable
+data for the other modules remains unchanged.</p>
+<h3 id="fyi">### FYI</h3>
+<p>The "_Workspaces" function was from BrodieRobertson and it
+really sucks (no offense).</p>
+<p>I only use "_CurrentWorkspace". You have to tweak these to
+match your needs.</p>
+<p>The battery module sources an external script to show my battery
+status.</p>
 <pre><code>#!/bin/sh
 
 batteries=$(find -P /sys/class/power_supply/ | grep -iE &quot;*bat*&quot;)
@@ -180,11 +216,12 @@ for battery in $batteries; do
        esac
 done
 </code></pre>
-<h2 id="image">Image</h2>
+<h2 id="image">## Image</h2>
 <p>bspwm-lemonbar.png</p>
-<h2 id="references">References</h2>
+<h2 id="references">## References</h2>
 <ol>
-<li><a href="https://github.com/drscream/lemonbar-xft.git">https://github.com/drscream/lemonbar-xft.git</a></li>
+<li><a
+href="https://github.com/drscream/lemonbar-xft.git">https://github.com/drscream/lemonbar-xft.git</a></li>
 </ol>
 <small><a href="/">Back to index</a><small>
 </body>

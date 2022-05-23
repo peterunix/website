@@ -1,8 +1,10 @@
-* Nginx with PHP
-** Dependencies
-$ apt install nginx php php-fpm
+* # Nginx with PHP
+** ## Dependencies
+#+begin_src shell
+apt install nginx php php-fpm
+#+end_src
 
-** Setting up php and nginx services
+** ## Setting up php and nginx services
 The cgi.fix_pathinfo variable tells PHP to attempt to execute the closest file it can find if the requested PHP file cannot be found.
 Let's set this variable to false.
 
@@ -17,7 +19,7 @@ systemctl enable nginx php7.3-fpm
 #+end_src
 
 
-** Adding PHP to nginx
+** ## Adding PHP to nginx
 
 This goes in /etc/nginx/sites-enabled/WEBSITE
 

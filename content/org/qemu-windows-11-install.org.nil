@@ -1,14 +1,14 @@
-* Running Windows 11 in Qemu
-** Preface
+* # Running Windows 11 in Qemu
+** ## Preface
 Here's my simplified guide to running Windows 11 in qemu. I'm primarly citing 
 [[https://macroform-node.medium.com/building-a-windows-11-vm-with-qemu-using-tpm-emulation-for-research-malware-analysis-part-1-8846378b9582][this page]]. Windows 11 requires the device have a TPM chip, UEFI that supports secure boot, and a newer generation CPU. We'll be emulating all of these.
 
 It would have saved me a lot of time to learn that Windows 11 doesn't require secure boot; It only requires the UEFI to support it.
 
-** Requirements
-*** Download Windows 11
+** ## Requirements
+*** ### Download Windows 11
 [[https://www.microsoft.com/en-us/software-download/windows11?ranMID=24542&ranEAID=kXQk6*ivFEQ&ranSiteID=kXQk6.ivFEQ-z6VZ_S.9XvSwMlrNbmrl1g&epi=kXQk6.ivFEQ-z6VZ_S.9XvSwMlrNbmrl1g&irgwc=1&OCID=AID2200057_aff_7593_1243925&tduid=%28ir__3ovxje66bokf6ygeyqg2uahdav2xo0ah06xerlg600%29%287593%29%281243925%29%28kXQk6.ivFEQ-z6VZ_S.9XvSwMlrNbmrl1g%29%28%29&irclickid=_3ovxje66bokf6ygeyqg2uahdav2xo0ah06xerlg600][Windows 11 iso]]
-*** Installing swtpm (software tpm)
+*** ### Installing swtpm (software tpm)
 We can use swtpm to create an emulated TPM device. You can either compile it by following their [[https://github.com/stefanberger/swtpm/wiki][wiki page]] or download the the precompiled binaries [[https://salsa.debian.org/nchevsky/swtpm/-/releases/debian%252F0.6.0-1.0][here]]
 
 The prebuilt debian binaries are outdated but worked for me.
@@ -20,21 +20,21 @@ wget 'http://oss.blazis.com/swtpm/swtpm_0.6.0-1.0_amd64.deb'
 dpkg -i swtpm-libs_0.6.0-1.0_amd64.deb
 dpkg -i http://oss.blazis.com/swtpm/swtpm_0.6.0-1.0_amd64.deb
 #+end_src
-*** Installing dependencies
+*** ### Installing dependencies
 The ovmf package contains a UEFI firmware that we'll be using
 #+begin_src
 apt install -y qemu ovmf
 #+end_src
 
-** Installing Windows 11
-*** Starting the emulated TPM
+** ## Installing Windows 11
+*** ### Starting the emulated TPM
 The swtpm socket has to be running before the virtual machine is started
 #+begin_src shell
 mkdir -p /tmp/emulated_tpm
 sudo swtpm socket --tpmstate dir=/tmp/emulated_tpm --ctrl type=unixio,path=/tmp/emulated_tpm/swtpm-sock --log level=20 --tpm2
 #+end_src
 
-*** Running with Qemu
+*** ### Running with Qemu
 The majority of this is copied from the page I linked earlier.
 Many of the options (i.e adding a soundcard) are included to make the computer look legitimate.
 It might be redundant, but I'll include those lines anyways.
@@ -88,5 +88,5 @@ sudo qemu-system-x86_64 \
 
 *-bios /usr/share/ovmf/OVMF.fd* Use the qemu uefi firmware to boot 
 
-** Conclusion
+** ## Conclusion
 You'll have to play around with the qemu VGA card settings and drivers to be able to change the resolution [[https://www.kraxel.org/blog/2019/09/display-devices-in-qemu/][link]]. That's all, folks. 

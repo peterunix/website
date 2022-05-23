@@ -1,5 +1,5 @@
-* Mounting vm images
-** Mounting the image
+* # Mounting vm images
+** ## Mounting the image
 #+begin_src shell
 apt-get install -y libguestfs-tools
 

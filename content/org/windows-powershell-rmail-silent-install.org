@@ -1,10 +1,10 @@
-* Windows Powershell Rmail Silent Installer
-** Preface
+* # Windows Powershell Rmail Silent Installer
+** ## Preface
 This downloads and installs Rmail for Outlook.
 It tries to detect the architecture you're using for Outlook.
 First it uninstalls it, next it removes all the Rmail configuration files, and finally it installs it
 
-** The script
+** ## The script
 #+begin_src shell
 Function _StopOutlookEXE{
     # Get's the process ID of Outlook, kills it, then waits for it to terminate
@@ -77,7 +77,7 @@ Function _Main{
 }
 #+end_src
 
-** Important notes
+** ## Important notes
 This DOES remove the %appdata%/Rmail/settings.json file.
 Comment out that line if you don't want it removed.
 That file is automatically regenerated if it doesn't exist.

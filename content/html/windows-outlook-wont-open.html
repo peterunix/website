@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,28 +32,39 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#windows-outlook-wont-open-when-clicked">Windows Outlook won't open when clicked</a>
+<li><a href="#windows-outlook-wont-open-when-clicked"># Windows Outlook
+won't open when clicked</a>
 <ul>
-<li><a href="#the-problem.">The Problem.</a></li>
-<li><a href="#solution-1-eh">Solution 1 (eh)</a></li>
-<li><a href="#solution-2-prettier">Solution 2 (prettier)</a></li>
+<li><a href="#the-problem.">## The Problem.</a></li>
+<li><a href="#solution-1-eh">## Solution 1 (eh)</a></li>
+<li><a href="#solution-2-prettier">## Solution 2 (prettier)</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="windows-outlook-wont-open-when-clicked">Windows Outlook won't open when clicked</h1>
-<h2 id="the-problem.">The Problem.</h2>
-<p>Clicking on Outlook appears to do nothing. This is almost always caused by the OUTLOOK.EXE process being stuck in the background. The simpliest solution is to kill the processes using the Task Manager. This isn't the most convient solution if Outlook get's stuck constantly.</p>
-<p>There's two quick ways of fixing it. Option 1 involves a batch script to kill OUTLOOK.EXE. Option 2 involves creating an Outlook shortcut that kills and starts the process.</p>
-<h2 id="solution-1-eh">Solution 1 (eh)</h2>
+<h1 id="windows-outlook-wont-open-when-clicked"># Windows Outlook won't
+open when clicked</h1>
+<h2 id="the-problem.">## The Problem.</h2>
+<p>Clicking on Outlook appears to do nothing. This is almost always
+caused by the OUTLOOK.EXE process being stuck in the background. The
+simpliest solution is to kill the processes using the Task Manager. This
+isn't the most convient solution if Outlook get's stuck constantly.</p>
+<p>There's two quick ways of fixing it. Option 1 involves a batch script
+to kill OUTLOOK.EXE. Option 2 involves creating an Outlook shortcut that
+kills and starts the process.</p>
+<h2 id="solution-1-eh">## Solution 1 (eh)</h2>
 <p>Create a batch script that kills the processes on click.</p>
 <pre class="shell"><code>C:\Windows\System32\taskkill.exe /im outlook.exe /f
 </code></pre>
-<h2 id="solution-2-prettier">Solution 2 (prettier)</h2>
-<p>Create a shortcut for Outlook. Modify the properties of the shortcut and add this line to the "TARGET" field.</p>
+<h2 id="solution-2-prettier">## Solution 2 (prettier)</h2>
+<p>Create a shortcut for Outlook. Modify the properties of the shortcut
+and add this line to the "TARGET" field.</p>
 <pre class="shell"><code>C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -command &quot;Stop-Process -Name &#39;outlook&#39; ; Start-Process &#39;C:\Program Files (x86)\Microsoft Office\root\Office16\OUTLOOK.EXE&#39;&quot;
 </code></pre>
-<p>This'll use powershell to kill the previous outlook.exe process and start a new one. It works beautifully and you'd hardly notice a difference.</p>
-<p>Make sure the outlook.exe path is the same for your PC. You should also set the icon for the shortcut to Outlooks.</p>
+<p>This'll use powershell to kill the previous outlook.exe process and
+start a new one. It works beautifully and you'd hardly notice a
+difference.</p>
+<p>Make sure the outlook.exe path is the same for your PC. You should
+also set the icon for the shortcut to Outlooks.</p>
 <small><a href="/">Back to index</a><small>
 </body>
 </html>

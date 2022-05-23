@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,15 +32,19 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#windows-powershell-enable-group-policy">Windows Powershell Enable Group Policy</a>
+<li><a href="#windows-powershell-enable-group-policy"># Windows
+Powershell Enable Group Policy</a>
 <ul>
-<li><a href="#the-script">The script</a></li>
+<li><a href="#the-script">## The script</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="windows-powershell-enable-group-policy">Windows Powershell Enable Group Policy</h1>
-<p>Here's my powershell rewrite of the infamous <a href="https://www.majorgeeks.com/content/page/enable_group_policy_editor_in_windows_10_home_edition.html">gpedit-enabler.bat</a> script. This will enable group policy on Windows 10 home computers.</p>
-<h2 id="the-script">The script</h2>
+<h1 id="windows-powershell-enable-group-policy"># Windows Powershell
+Enable Group Policy</h1>
+<p>Here's my powershell rewrite of the infamous <a
+href="https://www.majorgeeks.com/content/page/enable_group_policy_editor_in_windows_10_home_edition.html">gpedit-enabler.bat</a>
+script. This will enable group policy on Windows 10 home computers.</p>
+<h2 id="the-script">## The script</h2>
 <p>It doesn't run if group policy is already installed.</p>
 <pre class="shell"><code># Tests if gpedit.msc exists and installs it if it doesn&#39;t
 if ((Test-Path &quot;C:\Windows\System32\gpedit.msc&quot;) -eq $false){

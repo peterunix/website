@@ -1,5 +1,5 @@
-* Creating, Viewing, and Parsing a Storport Driver Trace
-** Creating a StorPort trace using logman.exe
+* # Creating, Viewing, and Parsing a Storport Driver Trace
+** ## Creating a StorPort trace using logman.exe
 LOGMAN.EXE is CLI utility for creating data collector sets.
 A data collector set can be thought of as a container for choosing which performance counters or trace events to log.
 All the logged data from the data collector will be stored in a single file.
@@ -45,7 +45,7 @@ LOGMAN.EXE stop storport -ets
 
 *-ets* Send commands to Event Trace Sessions directly without saving or scheduling.
 
-** Viewing the trace data (Event Viewer Method)
+** ## Viewing the trace data (Event Viewer Method)
 We used LOGMAN to create a trace log and store the output to C:/PerfLogs/storport.etl.
 Here's how you can open the file with Eventviewer
 
@@ -86,8 +86,8 @@ Less than 25ms = Normal
 
 More than 25ms = Poor Performance
 
-** Viewing the trace data (StorportPACMAN.ps1 Method)
-*** Downloading the script
+** ## Viewing the trace data (StorportPACMAN.ps1 Method)
+*** ### Downloading the script
 StorportPacman.PS1 is a powershell script written by Paul Reynolds at Microsoft.
 It parses the STORPORT.ETL file into an organized, human readable, CSV file.
 
@@ -383,7 +383,7 @@ Function Convert-ETWTraceToReadableFileCSV {
 }
 #+end_src
 
-*** Preparing our storport.etl file
+*** ### Preparing our storport.etl file
 We have to use XPerf.exe to convert the ETL file into a CSV before we sort it with StorportPacman.ps1.
 Download the Windows Performance Toolkit from
 [[https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install][this Windows ADK link]].
@@ -399,7 +399,7 @@ Now finally download the PowerPivot Excel templates from
 or from
 [[http://wiki.webperfect.ch/index.php?title=Datei:Storport_Excel_PowerPivot-Templates.zip][wiki.webperfect.ch]]
 
-*** Running the script
+*** ### Running the script
 Copy and paste the script into a ps1 file.
 Next, import it using this command
 

@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,24 +32,36 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#fix-samba-not-working-windows-xp">Fix: Samba not working Windows XP</a>
+<li><a href="#fix-samba-not-working-windows-xp"># Fix: Samba not working
+Windows XP</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#enabling-nt1-support">Enabling NT1 support</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#enabling-nt1-support">## Enabling NT1 support</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="fix-samba-not-working-windows-xp">Fix: Samba not working Windows XP</h1>
-<h2 id="preface">Preface</h2>
-<p>Windows XP samba shares require some extra tweaking to get working with qemu. We have enable a older and deprecated protocol for SMB shares in the temporary smb.conf that qemu creates. This file can be edited while the system is running</p>
-<h2 id="enabling-nt1-support">Enabling NT1 support</h2>
-<p>You have to add the "min protocol = NT1" line to the global section of temporary samba file. If you wait until the machine is booted to modify the file, then a restart will be required. The values of the smb.conf are hardcoded, so the best course of action would be to add this line to a script</p>
+<h1 id="fix-samba-not-working-windows-xp"># Fix: Samba not working
+Windows XP</h1>
+<h2 id="preface">## Preface</h2>
+<p>Windows XP samba shares require some extra tweaking to get working
+with qemu. We have enable a older and deprecated protocol for SMB shares
+in the temporary smb.conf that qemu creates. This file can be edited
+while the system is running</p>
+<h2 id="enabling-nt1-support">## Enabling NT1 support</h2>
+<p>You have to add the "min protocol = NT1" line to the global section
+of temporary samba file. If you wait until the machine is booted to
+modify the file, then a restart will be required. The values of the
+smb.conf are hardcoded, so the best course of action would be to add
+this line to a script</p>
 <pre><code>qemu-system-x86_64 [...] &amp;
 
 # Editing the configuration file while the VM is booting
 sed -e &#39;s/\[qemu\]/min protocol = NT1\n\[qemu\]/&#39; -i /tmp/qemu-smb.*/smb.conf
 </code></pre>
-<p>The new smb settings should be set before the operating system fully initializes. If you still can't access your shares, reboot the VM. I'm mapping the network share by right-clicking "my computer" in the windows search bar.</p>
+<p>The new smb settings should be set before the operating system fully
+initializes. If you still can't access your shares, reboot the VM. I'm
+mapping the network share by right-clicking "my computer" in the windows
+search bar.</p>
 <small><a href="/">Back to index</a><small>
 </body>
 </html>

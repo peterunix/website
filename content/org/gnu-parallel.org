@@ -1,10 +1,10 @@
-* Running commands in parallel
+* # Running commands in parallel
 
-** Preface
+** ## Preface
 I found a tool called "parallel" that lets you run commands in parallel
 instead of sequentially.
 
-** Usage
+** ## Usage
 The three colons get substituted for the arguments received from stdin.
 The "-j" option denotes how many individual processes will be created.
 

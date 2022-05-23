@@ -1,6 +1,6 @@
-* Recording the selected part of the screen with ffmpeg
+* # Recording the selected part of the screen with ffmpeg
 
-** Preface
+** ## Preface
 Depends: slop ffmpeg
 
 Here's a script I wrote that lets you select a window or portion of the

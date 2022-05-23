@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,15 +32,19 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#overclocking-the-raspberry-pi-model-3b">Overclocking the Raspberry Pi Model 3b+</a>
+<li><a href="#overclocking-the-raspberry-pi-model-3b"># Overclocking the
+Raspberry Pi Model 3b+</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
+<li><a href="#preface">## Preface</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="overclocking-the-raspberry-pi-model-3b">Overclocking the Raspberry Pi Model 3b+</h1>
-<h2 id="preface">Preface</h2>
-<p>You'll need a power supply for the raspberry pi as well as a fan for active cooling. Using a phone charger will not supply the board with enough power and will cause it to boot loop.</p>
+<h1 id="overclocking-the-raspberry-pi-model-3b"># Overclocking the
+Raspberry Pi Model 3b+</h1>
+<h2 id="preface">## Preface</h2>
+<p>You'll need a power supply for the raspberry pi as well as a fan for
+active cooling. Using a phone charger will not supply the board with
+enough power and will cause it to boot loop.</p>
 <p>Append this to /boot/config.txt and then reboot.</p>
 <pre class="shell"><code>core_freq=500
 arm_freq=1300

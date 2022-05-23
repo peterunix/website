@@ -1,9 +1,9 @@
-* Setting up an FTP over TLS
-** Preface
+* # Setting up an FTP over TLS
+** ## Preface
 Here's me documenting how to setup VSFTP on a home server.
 I'm using a self-signed SSL certificate along with the /lftp/ client to connect to the server.
 
-** Dependencies
+** ## Dependencies
 /Very Secure FTP Daemon/ (server)
 #+begin_src
 apt install vsftpd
@@ -15,7 +15,7 @@ Install /lftp/ on the client machine to access FTPS
 apt install lftp
 #+end_src
 
-** Creating SSL certificate
+** ## Creating SSL certificate
 SSL will provide encryption for file transfers and logins.
 
 #+begin_src
@@ -23,7 +23,7 @@ mkdir -p /etc/vsftpd/ssl
 openssl req -x509 -nodes -newkey rsa:2048 -keyout /etc/vsftpd/ssl/vsftpd.key -out /etc/vsftpd/ssl/vsftpd.pub -days 5000
 #+end_src
 
-** Configuration
+** ## Configuration
 I copied and tweaked the config from another website.
 Truth be told, I don't know what every option does.
 
@@ -62,7 +62,7 @@ userlist_file=/etc/vsftpd.userlist
 userlist_deny=NO
 #+end_src
 
-** Adding a new FTP user
+** ## Adding a new FTP user
 This will be the only user that has FTP access.
 #+begin_src
 useradd -m ftpuser
@@ -75,7 +75,7 @@ Append the user to the vsftpd.userlist
 echo "ftpuser" >> /etc/vsftpd.userlist
 #+end_src
 
-** Restarting/Enabling the service
+** ## Restarting/Enabling the service
 
 
 #+begin_src
@@ -83,7 +83,7 @@ systemctl restart vsftpd
 systemctl enable vsftpd
 #+end_src
 
-** Connecting using lftp 
+** ## Connecting using lftp 
 We need to save the certificate on the client machine and then configure lftp to use it.
 #+begin_src
 echo | \

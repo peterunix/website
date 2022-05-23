@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,19 +32,22 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#updating-the-pinebook-pros-keyboard">Updating the Pinebook Pros keyboard</a>
+<li><a href="#updating-the-pinebook-pros-keyboard"># Updating the
+Pinebook Pros keyboard</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#installtion">Installtion</a></li>
-<li><a href="#modifications">Modifications</a></li>
-<li><a href="#key-codes">Key codes</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#installtion">## Installtion</a></li>
+<li><a href="#modifications">## Modifications</a></li>
+<li><a href="#key-codes">## Key codes</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="updating-the-pinebook-pros-keyboard">Updating the Pinebook Pros keyboard</h1>
-<h2 id="preface">Preface</h2>
-<p>This is a verbatim copy of the directions written on [1]jackhumbert's git.</p>
-<h2 id="installtion">Installtion</h2>
+<h1 id="updating-the-pinebook-pros-keyboard"># Updating the Pinebook
+Pros keyboard</h1>
+<h2 id="preface">## Preface</h2>
+<p>This is a verbatim copy of the directions written on [1]jackhumbert's
+git.</p>
+<h2 id="installtion">## Installtion</h2>
 <pre class="shell"><code># compile
 git clone https://github.com/jackhumbert/pinebook-pro-keyboard-updater
 cd pinebook-pro-keyboard-updater
@@ -71,18 +78,23 @@ sudo ./updater flash-kb firmware/default_ansi.hex
 # updating to the revised iso firmware after steps 1 and 2
 sudo ./updater flash-kb firmware/default_iso.hex
 </code></pre>
-<h2 id="modifications">Modifications</h2>
+<h2 id="modifications">## Modifications</h2>
 <ol>
-<li>Corrected Fn+F9-12 keys for ANSI (ISO version didn't have this issue)</li>
+<li>Corrected Fn+F9-12 keys for ANSI (ISO version didn't have this
+issue)</li>
 <li>Arrow (and other) keys work with the Pine (GUI) key</li>
-<li>NumLock is respected only in the Fn layer, i.e. NumLock can be left on all the time</li>
-<li>Privacy switches now send keycodes when being enabled/disabled, for working into scripts/notifications</li>
+<li>NumLock is respected only in the Fn layer, i.e. NumLock can be left
+on all the time</li>
+<li>Privacy switches now send keycodes when being enabled/disabled, for
+working into scripts/notifications</li>
 </ol>
-<h2 id="key-codes">Key codes</h2>
-<p>F14: Microphone Enabled F18: Microphone Disabled F13: Wifi Enabled F17: Wifi Disabled F15: Camera Enabled F19: Camera Disabled</p>
+<h2 id="key-codes">## Key codes</h2>
+<p>F14: Microphone Enabled F18: Microphone Disabled F13: Wifi Enabled
+F17: Wifi Disabled F15: Camera Enabled F19: Camera Disabled</p>
 <p>References</p>
 <ol>
-<li><a href="https://github.com/jackhumbert/pinebook-pro-keyboard-updater">https://github.com/jackhumbert/pinebook-pro-keyboard-updater</a></li>
+<li><a
+href="https://github.com/jackhumbert/pinebook-pro-keyboard-updater">https://github.com/jackhumbert/pinebook-pro-keyboard-updater</a></li>
 </ol>
 <small><a href="/">Back to index</a><small>
 </body>

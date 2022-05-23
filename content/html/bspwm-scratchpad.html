@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,20 +32,24 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#better-scratchpad-bspwm">Better scratchpad bspwm</a>
+<li><a href="#better-scratchpad-bspwm"># Better scratchpad bspwm</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#setup-stuff">Setup stuff</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#setup-stuff">## Setup stuff</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="better-scratchpad-bspwm">Better scratchpad bspwm</h1>
-<h2 id="preface">Preface</h2>
-<p>The scratchpad scripts I found for bspwm SUCK. Some either stop working if you kill the terminal or bug out when you manage your window states. Here's a script I wrote that get's the job done RIGHT!</p>
+<h1 id="better-scratchpad-bspwm"># Better scratchpad bspwm</h1>
+<h2 id="preface">## Preface</h2>
+<p>The scratchpad scripts I found for bspwm SUCK. Some either stop
+working if you kill the terminal or bug out when you manage your window
+states. Here's a script I wrote that get's the job done RIGHT!</p>
 <p>bspwm-scratch.png</p>
 <p>I'm running tmux if you were wondering.</p>
-<h2 id="setup-stuff">Setup stuff</h2>
-<p>The "scratchy" script checks to see if a terminal with the classname "scratchy" exists. If it doesn't exist, it creates it. If it does exist, it hides it.</p>
+<h2 id="setup-stuff">## Setup stuff</h2>
+<p>The "scratchy" script checks to see if a terminal with the classname
+"scratchy" exists. If it doesn't exist, it creates it. If it does exist,
+it hides it.</p>
 <pre class="shell"><code>&gt;&gt; /path/to/scratchy
 #!/bin/sh
 
@@ -56,7 +64,11 @@ else
         fi
 fi
 </code></pre>
-<p>Next we'll assign special attributes for the window with the classname scratchy in our bspwmrc. I have it configured to automatically adjust the window position based on the size of the monitor. To get the window to be exactly centered, just do (1/2 monitor width)-(1/2 window width) as the X offset</p>
+<p>Next we'll assign special attributes for the window with the
+classname scratchy in our bspwmrc. I have it configured to automatically
+adjust the window position based on the size of the monitor. To get the
+window to be exactly centered, just do (1/2 monitor width)-(1/2 window
+width) as the X offset</p>
 <pre class="shell"><code>&gt;&gt; /path/to/bspwmrc
 
 # Calculate the center of the screen for a 600x400 scratchpad

@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,18 +32,23 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#running-commands-in-parallel">Running commands in parallel</a>
+<li><a href="#running-commands-in-parallel"># Running commands in
+parallel</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#usage">Usage</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#usage">## Usage</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="running-commands-in-parallel">Running commands in parallel</h1>
-<h2 id="preface">Preface</h2>
-<p>I found a tool called "parallel" that lets you run commands in parallel instead of sequentially.</p>
-<h2 id="usage">Usage</h2>
-<p>The three colons get substituted for the arguments received from stdin. The "-j" option denotes how many individual processes will be created.</p>
+<h1 id="running-commands-in-parallel"># Running commands in
+parallel</h1>
+<h2 id="preface">## Preface</h2>
+<p>I found a tool called "parallel" that lets you run commands in
+parallel instead of sequentially.</p>
+<h2 id="usage">## Usage</h2>
+<p>The three colons get substituted for the arguments received from
+stdin. The "-j" option denotes how many individual processes will be
+created.</p>
 <pre><code>apt install parallel
 
 # Recursivley search for all zip files and unzip four at a time
@@ -48,7 +57,9 @@ find -name &quot;*.zip&quot; | parallel -j 4 unzip ::: -d ./extracted/
 # Run multiple grep commands on several files
 find -name &quot;*.txt&quot; | parallel -j 8 grep -i &quot;parallel&quot; :::
 </code></pre>
-<p>GNU parallel can take stdin from a file aswell. You won't have to worry about parallel creating two different processes which act on the same file An example would be "grep" being run on "file.txt" twice.</p>
+<p>GNU parallel can take stdin from a file aswell. You won't have to
+worry about parallel creating two different processes which act on the
+same file An example would be "grep" being run on "file.txt" twice.</p>
 <pre><code># Example of how parallel would work
 find .
 file.zip

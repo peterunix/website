@@ -1,10 +1,10 @@
-* Setting up NFS share in Debain Linux
-** Dependencies
+* # Setting up NFS share in Debain Linux
+** ## Dependencies
 #+begin_src shell
 apt install nfs-kernel portmap
 #+end_src
 
-** Generating share
+** ## Generating share
 Edit /etc/exports
 
 #+begin_src shell

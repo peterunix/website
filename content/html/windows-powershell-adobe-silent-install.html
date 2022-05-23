@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,27 +32,42 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#windows-powershell-adobe-reader-32bit-silent-installer">Windows Powershell Adobe Reader 32bit Silent Installer</a>
+<li><a href="#windows-powershell-adobe-reader-32bit-silent-installer">#
+Windows Powershell Adobe Reader 32bit Silent Installer</a>
 <ul>
-<li><a href="#how-it-works">How it works</a></li>
-<li><a href="#the-script">The script</a></li>
+<li><a href="#how-it-works">## How it works</a></li>
+<li><a href="#the-script">## The script</a></li>
+<li><a href="#usage">## Usage</a></li>
+<li><a href="#explanation">## Explanation</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="windows-powershell-adobe-reader-32bit-silent-installer">Windows Powershell Adobe Reader 32bit Silent Installer</h1>
-<h2 id="how-it-works">How it works</h2>
+<h1 id="windows-powershell-adobe-reader-32bit-silent-installer">#
+Windows Powershell Adobe Reader 32bit Silent Installer</h1>
+<h2 id="how-it-works">## How it works</h2>
 <ul>
 <li>Uninstalls Adobe</li>
-<li>Download and install the Adobe Enterprise Installer</li>
-<li>Parse the DC Release Notes page to pull the latest patch file</li>
-<li>Installs the Latest Patch</li>
+<li>Download and installs Adobe Reader 32bit Enterprise</li>
+<li>Scrapes the DC Release Notes page to pull and install the latest
+patch file</li>
+<li>Scrapes the Adobe webpage to install the Extended Language Font
+Pack.</li>
+<li>Disables automatic updates</li>
 </ul>
-<p>The script downloads and installs Adobe using a hardcoded link. It scrapes the DC Release Notes page to download the most recent patch file and then installs it silently. This will get Adobe to the most recent release. Everything is done silently.</p>
-<p>This disables all forms of Adobe updates. Remove _AdobeSettings from the last line to suppress this function.</p>
-<h2 id="the-script">The script</h2>
+<h2 id="the-script">## The script</h2>
 <p>Powershell v4 is required</p>
 <pre class="shell"><code>$ProgressPreference=&quot;SilentlyContinue&quot;
-$cwd=$PSScriptRoot
+
+# The installer only runs when Adobe isn&#39;t running
+# This kills all Adobe processes.
+function _StopAdobeProcess{
+    # Kill the Adobe process
+    $ids=(Get-Process -Name acro*).id
+    foreach ($id in $ids){
+        Stop-Process -Force $id 2&gt;&amp;1 | Out-Null
+        Wait-Process -Id $id 2&gt;&amp;1 | Out-Null
+    }
+}
 
 # Fetch the uninstall string for adobe
 function _UninstallAdobe{
@@ -64,6 +83,8 @@ function _UninstallAdobe{
     }
 }
 
+# Installs Adobe using a hard coded link
+# The MD5 sum is checked once. If it fails twice, Adobe is installed regardless
 function _InstallAdobe{
     Write-Host &quot;Downloading Adobe.&quot;
     Invoke-WebRequest -Uri &#39;https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2200120085/AcroRdrDC2200120085_en_US.exe&#39; -OutFile &quot;$env:temp\adobereader.exe&quot; -UseBasicParsing
@@ -78,6 +99,7 @@ function _InstallAdobe{
     Start-Process &quot;$env:temp\adobereader.exe&quot; -ArgumentList &quot;/sAll /rs /msi EULA_ACCEPT=YES&quot; -Wait
 }
 
+# Scrapes the DC release page to download the latest patch file
 function _InstallLatestPatch{
     Write-Host &quot;Locating the latest Adobe patch file for this month.&quot;
     $base=&quot;https://www.adobe.com/devnet-docs/acrobatetk/tools/ReleaseNotesDC/&quot;
@@ -95,6 +117,19 @@ function _InstallLatestPatch{
     Start-Process &quot;$env:temp/$filename&quot; -ArgumentList &quot;/qn&quot; -Wait
 }
 
+# Scrapes the Adobe page to download the latest Extended Language Font Pack
+function _InstallExtendedFontPack{
+    $ProgressPreference=&quot;SilentlyContinue&quot;
+    $url=&quot;https://helpx.adobe.com/in/acrobat/kb/windows-font-packs-32-bit-reader.html&quot;
+    $link=(Invoke-WebRequest -Uri $url -UseBasicParsing).links.href | Select-String &quot;pub/adobe/reader/win/AcrobatDC/misc/FontPack&quot; | Select-Object -First 1
+    Invoke-WebRequest -Uri &quot;$link&quot; -OutFile &quot;$env:temp\ExtendedFontPack.msi&quot; -UseBasicParsing
+
+    Write-Host &quot;Installing the Extended Font Pack&quot;
+    Start-Process &quot;$env:temp\ExtendedFontPack.msi&quot; -ArgumentList &quot;/qn&quot; -Wait
+    Write-Host &quot;DONE!&quot;
+}
+
+# Disables automatic update through a mix of registry keys, scheduled tasks, and services
 function _AdobeSettings{
     Write-Host &quot;Disabling the update task, update services, update registry keys, and enhanced security mode.&quot;
     # Prevent autoupdates (not necessary with the enterprise edition)
@@ -112,13 +147,139 @@ function _AdobeSettings{
     New-ItemProperty &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown&quot; -Name &quot;bEnhancedSecurityInBrowser&quot; -Value 0 -PropertyType DWORD -Force
 }
 
+function _RemoveDesktopIcon{
+    Remove-Item -Force -Path &quot;C:\Users\*\Desktop\Acrobat Reader DC.lnk&quot;
+}
+
 _UninstallAdobe
 _InstallAdobe
 _InstallLatestPatch
+_InstallExtendedFontPack
 _AdobeSettings
+_RemoveDesktopIcon
 </code></pre>
+<h2 id="usage">## Usage</h2>
 <pre class="shell"><code>./script.ps1
 </code></pre>
+<h2 id="explanation">## Explanation</h2>
+<p>This installs Adobe Acrobat Reader 32bit using a hardcoded link. It
+then updates it to the latest patch and disables automatic updates.
+Enhanced-Security-Mode and the EULA is also disabled.</p>
+<p>It's a multi-step process</p>
+<ol>
+<li>Kill all the running Adobe processes that could stop the
+installation.</li>
+<li>Uninstall Adobe if it's already installed</li>
+<li>Install Adobe using a hardcoded link</li>
+<li>Scrape and install the latest Adobe patch file from <a
+href="https://www.adobe.com/devnet-docs/acrobatetk/tools/ReleaseNotesDC/">the
+Adobe Release Notes page</a>.</li>
+<li>Disable automatic updates</li>
+</ol>
+<p>The Adobe installer fails if Adobe is already running. This is
+usually the case if a Practice Management software is open (i.e Dentrix
+Document Center). The script get's all the processes that start with
+"Acro", kills them, then waits for the process to finish
+terminating.</p>
+<pre class="shell"><code>$ids=(Get-Process -Name acro*).id
+foreach ($id in $ids){
+    Stop-Process -Force $id 2&gt;&amp;1 | Out-Null
+    Wait-Process -Id $id 2&gt;&amp;1 | Out-Null
+}
+</code></pre>
+<p>The next step is to uninstall Adobe. There are a couple registry keys
+in Windows that store the installation information for all programs.
+This would include the install location, program name, uninstall string,
+etc.</p>
+<p>Some applications use a custom EXE file to uninstall themselves (i.e
+CryptoPrevent). Others, such as Adobe, use msiexec. This is what makes
+the silent uninstall a breeze.</p>
+<p>We parse out the registry to get the Adobe uninstall string. Using
+the "-match" operator in powershell, I'm able to grep out the program
+id. Msiexec uses the program id to uninstall Adobe silently.</p>
+<pre class="shell"><code># Storing the contents of the registry keys that hold software uninstall information
+$progs=Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall, HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty
+
+# Uninstalling it silently
+try{
+    Write-Host &quot;Uninstalling Adobe if it&#39;s installed.&quot;
+    # This is where I pull the program id from the uninstall string.
+    # The $matches variable is automatically created by the -match operator
+    (($progs | Where {$_.displayname -match &quot;Adobe Acrobat.*DC&quot;}).uninstallstring) -match &quot;{.*.}&quot; | Out-Null
+    Start-Process &quot;msiexec.exe&quot; -ArgumentList &quot;/X $($matches[0]) /qn&quot; -Wait
+} catch {
+    &quot;Couldn&#39;t find Adobe Acrobat Reader.&quot;
+}
+</code></pre>
+<p>Next we install Adobe using a hardcoded link. This will act as the
+base version that we'll later update. Hiding the progress bar
+($ProgressPreference='SilentlyContinue') increases downloads speeds 20
+fold.</p>
+<pre class="shell"><code>$ProgressPreference=&#39;SilentlyContinue&#39;
+Write-Host &quot;Downloading Adobe.&quot;
+Invoke-WebRequest -Uri &#39;https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2200120085/AcroRdrDC2200120085_en_US.exe&#39; -OutFile &quot;$env:temp\adobereader.exe&quot; -UseBasicParsing
+</code></pre>
+<p>When the file is first downloaded, I check the hash of it a single
+time. If the file hash is different, the Adobe installer gets
+re-downloaded. It only does this check once. I'm assuming that the file
+hash will always be the same. I won't stop the installation process if
+it fails a second time.</p>
+<pre class="shell"><code>$hashItShouldBe=&quot;3656695886E2E7A62A6C321DA1A22593&quot;
+$hash=Get-FileHash $env:temp\adobereader.exe -Algorithm MD5
+if ($hash.hash -ne $hashItShouldBe){
+    Write-Host &quot;MD5Sum didn&#39;t match. Redownloading Adobe.&quot;
+    Write-Host &quot;The installer will run regardless if the MD5Sum doesn&#39;t match a second time.&quot;
+    Invoke-WebRequest -Uri &#39;https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2200120085/AcroRdrDC2200120085_en_US.exe&#39; -OutFile &quot;$env:temp\adobereader.exe&quot; -UseBasicParsing
+}
+</code></pre>
+<p>Once Adobe is installed, the next step is to download and apply the
+latest patch. Adobe Acrobat Reader DC is a rolling release, meaning that
+we won't have to deal with new versions coming out. I scrape the Adobe
+Release page to download a patch file that updates our out-dated Adobe
+to most recent version. It essentially grabs all the links, finds the
+page that contains the patches for the current month, scrapes that page,
+and finally downloads the patch.</p>
+<pre class="shell"><code>Write-Host &quot;Locating the latest Adobe patch file for this month.&quot;
+$base=&quot;https://www.adobe.com/devnet-docs/acrobatetk/tools/ReleaseNotesDC/&quot;
+$link=(Invoke-WebRequest -Uri &quot;https://www.adobe.com/devnet-docs/acrobatetk/tools/ReleaseNotesDC/index.html&quot; -UseBasicParsing).links.href | Select-String &quot;continuous/dccontinuous&quot; | Select -First 1
+$link = $base+$link
+
+Write-Host &quot;Downloading the latest Adobe patch file.&quot;
+# After finding the patch notes for the month, let&#39;s parse out the URL for the latest patch file
+$patchlink=(Invoke-WebRequest -Uri &quot;$link&quot; -UseBasicParsing).links.href | Select-String &quot;pub/adobe/reader/win/AcrobatDC/&quot; | Select -First 1
+# Get the filename from the url and download it
+$filename=([uri]&quot;$patchlink&quot;).Segments[-1]
+# Download the patch.msp
+Invoke-WebRequest -Uri &quot;$patchlink&quot; -OutFile &quot;$env:temp/$filename&quot; -UseBasicParsing
+Write-Host &quot;Installing the patch.&quot;
+Start-Process &quot;$env:temp/$filename&quot; -ArgumentList &quot;/qn&quot; -Wait
+Remove-Item &quot;$env:temp/$filename&quot;
+</code></pre>
+<p>Using the same process, it installs the Extended Language Font Pack
+for Adobe. This is for the scanned documents that contain random Asian
+characters. I'm not sure why some documents contain them, but this will
+make sure you can still open those documents.</p>
+<p>Now that Adobe is up-to-date, the next step is to disable automatic
+updates and enhanced security mode. Adobe Updates are controlled by an
+update service, scheduled task, and a few registry keys. In an ideal
+world, the service and scheduled task should be enough to disable them.
+I add the registry keys since we've been having issues with the
+automatic updates.</p>
+<p>Enhanced Security Mode also has a registry key in HKLM</p>
+<pre class="shell"><code>Disable-ScheduledTask -TaskName &quot;Adobe Acrobat Update Task&quot;
+Stop-Service -Name &quot;Adobe Acrobat Update Service&quot;
+Set-Service -Name &quot;AdobeARMservice&quot; -StartupType Disabled
+# Disables and locks down the update button
+New-Item &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC&quot; -ErrorAction SilentlyContinue
+New-Item &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown&quot; -ErrorAction SilentlyContinue
+New-ItemProperty &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown&quot; -Name &quot;Mode&quot; -Value 0 -PropertyType DWORD -Force
+New-ItemProperty &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown&quot; -Name &quot;bUpdater&quot; -Value 0 -PropertyType DWORD -Force
+New-ItemProperty &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown&quot; -Name &quot;bProtectedModeValue&quot; -Value 0 -PropertyType DWORD -Force
+# This *should* disable enhanced security mode
+New-ItemProperty &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown&quot; -Name &quot;bEnhancedSecurityStandalone&quot; -Value 0 -PropertyType DWORD -Force
+New-ItemProperty &quot;HKLM:\Software\WOW6432Node\Policies\Adobe\Acrobat Reader\DC\FeatureLockDown&quot; -Name &quot;bEnhancedSecurityInBrowser&quot; -Value 0 -PropertyType DWORD -Force
+</code></pre>
+<p>After that, Adobe is installed!</p>
 <small><a href="/">Back to index</a><small>
 </body>
 </html>

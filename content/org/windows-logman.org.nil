@@ -1,7 +1,7 @@
 Logman.exe
 Relog.exe
 Typeperf.exe
-** Logman.exe
+** ## Logman.exe
 Collects performance logs using the command line
 
 logman.exe create counter Performance_Logs -f bincirc -max 500 -si 00:00:01 -c "\Memory\*" "\Network Interface(*)\*" "\PhysicalDisk(*)\*" "\Processor(*)\*"
@@ -11,11 +11,11 @@ Log Format; binary circular
 Max size. 500 megabytes
 Sample Interval. How often to capture data
 
-** Save location
+** ## Save location
 C:\PerfLogs\Admin\
 
-** Convert to csv
+** ## Convert to csv
 relog.exe .\Performance_Logs_000001.blg -o reduced_log.csv /f csv
 
-** List all counters
+** ## List all counters
 typeperf.exe

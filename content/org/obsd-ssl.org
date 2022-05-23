@@ -1,11 +1,11 @@
-* Letsencrypt with OpenBsd
+* # Letsencrypt with OpenBsd
 
-** Preface
+** ## Preface
 Installing ssl certificates is a breeze with OpenBsd.
 We'll use acme-client to generate our certs.
 I'm asssuming that you've already added your servers ip to your domain's dns records.
 
-** Setting things up
+** ## Setting things up
 There ain't too much to do here.
 We'll add our domain name to acme-client's config and then start the httpd web server.
 The acme client creates a file in /var/www/acme/ which is accessible over the webserver.
@@ -21,7 +21,7 @@ cp /etc/example/acme-client.conf /etc/
 rcctl -f start httpd
 #+end_src
 
-** Editing the config
+** ## Editing the config
 I don't need to explain anything here.
 Just replace "example.com" with your domain name in
 /etc/acme-client.configuration.
@@ -61,7 +61,7 @@ domain unixfandom.com {
 }
 #+end_src
 
-** Generating the cert
+** ## Generating the cert
    One thing I haven't tested is having more than one alternative domain
    listed.
    I'm not sure if you separate the domains by space or comma - I should

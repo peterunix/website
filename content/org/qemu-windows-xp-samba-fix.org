@@ -1,10 +1,10 @@
-* Fix: Samba not working Windows XP
-** Preface
+* # Fix: Samba not working Windows XP
+** ## Preface
 Windows XP samba shares require some extra tweaking to get working with qemu.
 We have enable a older and deprecated protocol for SMB shares in the temporary smb.conf that qemu creates.
 This file can be edited while the system is running
 
-** Enabling NT1 support
+** ## Enabling NT1 support
 You have to add the "min protocol = NT1" line to the global section of temporary samba file.
 If you wait until the machine is booted to modify the file, then a restart will be required.
 The values of the smb.conf are hardcoded, so the best course of action would be to add this line to a script

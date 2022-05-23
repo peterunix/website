@@ -1,12 +1,12 @@
-* Pinebook Pro Kernel Compilation (debian)
+* # Pinebook Pro Kernel Compilation (debian)
 
-** Preface
-Here's how to compile [1]tsys' mainline linux kernel for the Pinebook Pro.
+** ## Preface
+Here's how to compile [[https://gitlab.manjaro.org/tsys/linux-pinebook-pro][tsys']] mainline linux kernel for the Pinebook Pro.
 I'm using the "debian way" of installing the kernel.
 When compiling the kernel, we can tell "make" to package the binaries as multiple debian archive files (.deb).
 Afterward, we can simple run "dpkg -i .deb" to install it.
 
-** Setting up our enviroment
+** ## Setting up our enviroment
 Here we'll download the dependencies and the linux sources.
 
 #+begin_src shell
@@ -17,7 +17,7 @@ git clone --depth=1 https://gitlab.manjaro.org/tsys/linux-pinebook-pro
 cd linux-pinebook-pro
 #+end_src
 
-** Compiling the kernel
+** ## Compiling the kernel
 The "ARCH" variable specifies the target machines architecture.
 
 The "CROSS_COMPILE" variable specifies which compiler the system should use.
@@ -38,7 +38,7 @@ make -j 6 deb-pkg
 The compiling process should take about two hours. My pinebook was left on a desk and stayed consistently at 68.4-69.8 degrees Celsius.
 The output deb files are in "../"
 
-** Installing the packages files
+** ## Installing the packages files
 I forgot the exact names of the output deb files.
 
 #+begin_src shell
@@ -67,7 +67,7 @@ mv ~/initrd.img-5.10.0-rc5-1-pinebookpro-arm64+
 
 *DONE!* You can boot into your new mainline kernel now.
 
-** Uboot (IMPORTANT)
+** ## Uboot (IMPORTANT)
 
 Remove "maxcpus=4" from /boot/extlinux/extlinux.conf
 
@@ -95,12 +95,8 @@ label l0
         append root=PARTLABEL=mmcblk1-RootFS console=ttyS2,1500000n8 console=tty0 ro quiet splash plymouth.ignore-serial-consoles maxcpus=6 coherent_pool=1M
 #+end_src
 
-** Encryption
+** ## Encryption
 I couldn't boot from my encrypted debian install.
-According to [2]this post, you can update your initrd to include modules to decrypt the file system, but the display won't work.
+According to [[https://forum.pine64.org/showthread.php?tid=8765][this post]], you can update your initrd to include modules to decrypt the file system, but the display won't work.
 I couldn't even get a prompt to appear using the serial console when attempting this.
 I'm opting for an encrypted home partition instead.
-
-References
-1. https://gitlab.manjaro.org/tsys/linux-pinebook-pro
-2. https://forum.pine64.org/showthread.php?tid=8765

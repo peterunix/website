@@ -1,4 +1,4 @@
-** What is Xperf
+** ## What is Xperf
 The "Event Tracing for Windows (ETW).
 A lot of OS components are instrumented using the ETW framework.
 
@@ -8,19 +8,19 @@ A short ETW trace session will log thousands of events.
 
 XPerf can manage settings used during an ETW trace session and visualize trace logs, 
 
-** General Logman
+** ## General Logman
 logman.exe create counter Dell-Perf-Log -o “C:\perflogs\performancelog” -f bincirc -v mmddhhmm -max 800 -c “\PhysicalDisk(*)\*” “\Memory\*” “\Network Interface(*)\*” “\Process(*)\*” “\Processor\*” -si 00:00:01
 logman start Performance_Logs
 logman stop Performance_Logs
 relog C:\Perflogs\Admin\Performance_Logs_000001.blg /o C:\Perflogs\Admin\Reduced_Log.csv /f csv
 
-** XPerf installation
+** ## XPerf installation
 XPerf comes with the Windows Performance Toolkit (WPT).
 You can download WPT from the Windows Software Development Kit (SDK)
 https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/
 XPerf.exe will automatically get placed in the systems path after the installation.
 
-** Sysport
+** ## Sysport
 @echo off
 ECHO These commands will enable tracing:
 @echo on
@@ -35,7 +35,7 @@ logman stop "storport" -ets
 @echo off
 echo Tracing has been captured and saved successfully at c:\perflogs\storport.etl
 pause
-** Use XPerf. Large file
+** ## Use XPerf. Large file
 Let's create a large file thats 500MB in size.
 
 #+begin_src powershell

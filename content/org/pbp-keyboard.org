@@ -1,10 +1,10 @@
-* Updating the Pinebook Pros keyboard
+* # Updating the Pinebook Pros keyboard
 
-** Preface
+** ## Preface
 This is a verbatim copy of the directions written on [1]jackhumbert's
 git.
 
-** Installtion
+** ## Installtion
 
 #+begin_src shell
 # compile
@@ -38,13 +38,13 @@ sudo ./updater flash-kb firmware/default_ansi.hex
 sudo ./updater flash-kb firmware/default_iso.hex
 #+end_src
 
-** Modifications
+** ## Modifications
 1. Corrected Fn+F9-12 keys for ANSI (ISO version didn't have this issue)
 2. Arrow (and other) keys work with the Pine (GUI) key
 3. NumLock is respected only in the Fn layer, i.e. NumLock can be left on all the time
 4. Privacy switches now send keycodes when being enabled/disabled, for working into scripts/notifications
 
-** Key codes
+** ## Key codes
 F14: Microphone Enabled
 F18: Microphone Disabled
 F13: Wifi Enabled

@@ -1,0 +1,25 @@
+* Emulating a TPM with Qemu
+** Preface
+We can emulate a TPM chip using SWTPM. The documentation on this page is a work in progress.
+
+** Dependencies
+Here's a link to the wiki page on compiling the application: https://github.com/stefanberger/swtpm/wiki
+
+I installed the pre-compiled binaries from here: https://salsa.debian.org/nchevsky/swtpm/-/releases/debian%252F0.6.0-1.0
+
+#+begin_src
+# Download the binaries and install
+dpkg -i swtpm*.deb
+#+end_src
+
+** Creating TPM 2.0 device
+#+begin_src
+mkdir /tmp/emulated_tpm
+swtpm socket --tpmstate dir=/tmp/emulated_tpm --ctrl type=unixio,path=/tmp/emulated_tpm/swtpm-sock --log level=20 --tpm2
+#+end_src
+
+** Running with Qemu
+#+begin_src
+-chardev socket,id=chrtpm,path=/tmp/emulated_tpm/swtpm-sock \
+-tpmdev emulator,id=tpm0,chardev=chrtpm -device tpm-tis,tpmdev=tpm0
+#+end_src

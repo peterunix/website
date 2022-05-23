@@ -1,9 +1,9 @@
-* Chrooting into systems with different architectures
-** Preface
+* # Chrooting into systems with different architectures
+** ## Preface
 The qemu-user-static package provides several usermode emulation binaries.
 We can copy these over to our chroot environment to emulate programs from a different architecture.
 
-** Dependencies
+** ## Dependencies
 The emulation binaries will be placed in /usr/bin/qemu-*-static.
 These are standalone applications don't require dependencies.
 The arch-install-scripts provide the "arch-chroot" wrapper script.
@@ -12,7 +12,7 @@ It handles mounting the psuedo filesystems (dev,proc,sys) so we don't have to.
 apt install qemu-user-static arch-install-scripts
 #+end_src
 
-** Chrooting
+** ## Chrooting
 Here's me chrooting into Raspbian ARM.
 
 #+begin_src shell

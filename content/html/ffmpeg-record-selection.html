@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,16 +32,21 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#recording-the-selected-part-of-the-screen-with-ffmpeg">Recording the selected part of the screen with ffmpeg</a>
+<li><a href="#recording-the-selected-part-of-the-screen-with-ffmpeg">#
+Recording the selected part of the screen with ffmpeg</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
+<li><a href="#preface">## Preface</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="recording-the-selected-part-of-the-screen-with-ffmpeg">Recording the selected part of the screen with ffmpeg</h1>
-<h2 id="preface">Preface</h2>
+<h1 id="recording-the-selected-part-of-the-screen-with-ffmpeg">#
+Recording the selected part of the screen with ffmpeg</h1>
+<h2 id="preface">## Preface</h2>
 <p>Depends: slop ffmpeg</p>
-<p>Here's a script I wrote that lets you select a window or portion of the screen and record it. It uses the ultrafast libx264 video codec to reduce resource consumption. Audio bitrate is capped at 128kb/s and the video is scaled to 720p to further conserve resourse usage.</p>
+<p>Here's a script I wrote that lets you select a window or portion of
+the screen and record it. It uses the ultrafast libx264 video codec to
+reduce resource consumption. Audio bitrate is capped at 128kb/s and the
+video is scaled to 720p to further conserve resourse usage.</p>
 <pre><code>#!/bin/sh
 # Depends: slop ffmpeg
 # Records the selected part of the screen

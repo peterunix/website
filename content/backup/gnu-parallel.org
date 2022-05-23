@@ -1,0 +1,38 @@
+* Running commands in parallel
+
+** Preface
+I found a tool called "parallel" that lets you run commands in parallel
+instead of sequentially.
+
+** Usage
+The three colons get substituted for the arguments received from stdin.
+The "-j" option denotes how many individual processes will be created.
+
+#+begin_src
+apt install parallel
+
+# Recursivley search for all zip files and unzip four at a time
+find -name "*.zip" | parallel -j 4 unzip ::: -d ./extracted/
+
+# Run multiple grep commands on several files
+find -name "*.txt" | parallel -j 8 grep -i "parallel" :::
+#+end_src
+
+GNU parallel can take stdin from a file aswell.
+You won't have to worry about parallel creating two different processes which act on the same file
+An example would be "grep" being run on "file.txt" twice.
+
+#+begin_src
+# Example of how parallel would work
+find .
+file.zip
+something.zip
+three.zip
+four.zip
+
+# Running two instances of unzip at a time
+find . | parallel -j2 unzip :::
+
+PROCESS1: unzip file.zip
+PROCESS2: unzip something.zip
+#+end_src

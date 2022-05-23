@@ -1,15 +1,15 @@
-* Troubleshooting PBP problems
+* # Troubleshooting PBP problems
 
-** Preface
+** ## Preface
 I'm addressing common problem with the pbp more than anything. Go down
 the list until you find something that's relevant to you.
 
-** Powerkey shuts off machine
+** ## Powerkey shuts off machine
 The powerkey is not in the most ideal locations. Edit
 /etc/systemd/logind.conf and change "HandlePowerKey=poweroff" to
 "HandlePowerKey=ignore"
 
-** Can't boot at all after flashing EMMC
+** ## Can't boot at all after flashing EMMC
 You could either use an emmc to usb adapter to reflash your EMMC
 (LAME).
 You could use your official pine64 UART cable to see if you could fix
@@ -31,7 +31,7 @@ If you flip the switch to late, the EMMC will not appear as a drive.
 Once booted, you could either reflash a new pinebook image or remove
 the bootloader from the emmc.
 
-** Removing the bootloader
+** ## Removing the bootloader
 Uboot resides within the first 35 or so megabytes of the drive. This is
 why you end up seeing free space preceding the boot partition of your
 drive. Without this free space, uboot would be overwriting your
@@ -54,7 +54,7 @@ dd if=/dev/zero of=/dev/BLKDEV bs=64k seek=128 conv=fsync &>/dev/null
 dd if=/dev/zero of=/dev/BLKDEV bs=64k seek=192 conv=fsync &>/dev/null
 #+end_src
 
-** Loose screws that fall out
+** ## Loose screws that fall out
 Some people reported that their screws to the bottom plate would fall
 out after sometime. I've never experienced this, but I still took the
 liberty of preventing it from happening.
@@ -66,12 +66,12 @@ you're good to go.
 I used Permatex Threadlocker Blue (Medium Strength) 24200 which I
 bought from Walmart. It works just fine.
 
-** Blinking red light and not booting
+** ## Blinking red light and not booting
 Pretty sure this is indicative of a kernel panic. Nothing will be
 displayed on the screen. The only way to tell what's going on is to use
 the UART cable for the pinebook pro. Buy it if you don't have it. It's
 useful.
 
-** Damaged thermal pad. Getting a replacement.
+** ## Damaged thermal pad. Getting a replacement.
 Purchase yourself a 4mm thermal pad from Amazon and you'll be all set.
 Cut a 1 inch by 1 inch square.

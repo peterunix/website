@@ -1,0 +1,51 @@
+* Nginx with PHP
+** Dependencies
+$ apt install nginx php php-fpm
+
+** Setting up php and nginx services
+The cgi.fix_pathinfo variable tells PHP to attempt to execute the closest file it can find if the requested PHP file cannot be found.
+Let's set this variable to false.
+
+#+begin_src shell
+vim /etc/php/7.3/fpm/php.ini
+
+# Edit this variable
+cgi.fix_pathinfo=0
+
+systemctl start nginx php7.3-fpm
+systemctl enable nginx php7.3-fpm
+#+end_src
+
+
+** Adding PHP to nginx
+
+This goes in /etc/nginx/sites-enabled/WEBSITE
+
+#+begin_src shell
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+
+    root /var/www/html;
+    index index.php index.html index.htm index.nginx-debian.html;
+
+    server_name server_domain_or_IP;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php7.3-fpm.sock;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+#+end_src
+
+References
+
+   1. file:///opt/webNew/index.php

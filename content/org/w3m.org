@@ -1,17 +1,17 @@
-* Awesomeness with W3M
+* # Awesomeness with W3M
 
-** Preface
+** ## Preface
 Terminal web browsers are a joke, no doubt about it, but W3M is something extra...
 You should watch Gotbletu's youtube videos on W3M. He's done some cool things with it.
 w3m.png
 
-** Features
+** ## Features
 W3M can execute [1]CGI scripts and display the output of the script to the screen.
 The only reference to using cgi scripts was on [2]this w3m manual page.
 I don't entirley understand how it works, but I guess printing out http header information to the screen can be used to control w3m.
 I'll show you some cool scripts you could use later in this page.
 
-*** Here are some notable features of w3m:
+*** ### Here are some notable features of w3m:
 1. Fully customizable keybindings
 2. User scripts (diy addons)
 3. Images (install w3m-img)
@@ -20,7 +20,7 @@ I'll show you some cool scripts you could use later in this page.
 
 Image previews only work well on a select number of terminals. Xterm and Urxvt work well. Other terminals may either not display them at all or have a lot of flickering.
 
-* Basic configuration
+* # Basic configuration
 Here's a list of important files:
 
 1. ~/.w3m/config - Contains browser config options
@@ -56,7 +56,7 @@ keymap yy       EXTERN     "echo -n %s | xsel -b"
 keymap yf       EXTERN_LINK 'env printf %s "$0" | xsel -b'
 #+end_src
 
-** Cool scripts
+** ## Cool scripts
 I use these scripts to make w3m usable
 
 1. FZF web search [4](example gif)
@@ -91,7 +91,7 @@ magnet: file:/cgi-bin/magnet.py?%s
 
 Opening a magnet link should now automatically send it to w3m.
 
-** Tab operations
+** ## Tab operations
 Here are my keybindings for tabbing.
 
 #+begin_src shell

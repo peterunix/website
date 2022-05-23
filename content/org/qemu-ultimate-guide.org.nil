@@ -1,12 +1,12 @@
-* Ultimate Qemu Guide
-** Todo
+* # Ultimate Qemu Guide
+** ## Todo
 1. FIX SPICE USING EHCI INSTEAD OF XHCI USB CONTROLLER
 2. Port fowarding usermode networking
 
-** Preface
+** ## Preface
 How to install Windows 10 (or any VM for that matter) using Qemu. We're utilizing KVM and Virtio to drastically increase performance. Using "spicy", we can access our guest machine over the network. This allows for clipboard sharing along with the ability to redirect USB devices over the network.
 
-** Creating a virtual machine image 
+** ## Creating a virtual machine image 
 Let's create an image with the qcow2 format and 30G of allocated space.
 The qcow2 format only takes up as much space as you put in it.
 A 30Gb image with 5Gb of data will only use 5Gb.
@@ -15,7 +15,7 @@ A 30Gb image with 5Gb of data will only use 5Gb.
 qemu-img create -f qcow2 windows10.qcow2 30G
 #+end_src
 
-** Basic usage
+** ## Basic usage
 Here's the most basic usage of Qemu. This method is incredibly slow.
 
 #+begin_src shell
@@ -35,10 +35,10 @@ qemu-system-x86_64 \
 
 *-cdrom*  The windows install media
 
-** KVM with Virtio 
+** ## KVM with Virtio 
 Installing a guest machine using KVM with Virtio increases your vm's throughput and performance immensely.
 Use this method of installing Windows over what I showed you previously.
-*** KVM
+*** ### KVM
 KVM (Kernel-based Virtual Machine) is a linux hypervisor that runs virtualized guests with pretty good speeds.
 KVM is built into the newer linux kernels and can be run through qemu directly.
 
@@ -48,7 +48,7 @@ https://mkdev.me/en/posts/virtualization-basics-and-an-introduction-to-kvm
 qemu-system-x86_64 -enable-kvm -smp 4 -m 3G windows10.qcow2
 #+end_src
 
-*** Virtio
+*** ### Virtio
 KVM allows you to virtualize the OS but it doesn't virtualize the network and disk devices.
 That job is handed to the guest machine to emulate.
 Virtio is a driver that can be installed onto the VM and allows for virtualized network and disks.
@@ -100,7 +100,7 @@ Examples of other interfaces would be ide, floppy, etc.
 Disabling caching greatly improves io speeds.
 *aio=native* specifies the asynchronous io backend to use. Setting this to "native" also increases io speeds.
 
-** Usermode networking explained
+** ## Usermode networking explained
 When we enable networking through the previous command, we're doing two things:
 
 1. Creating a virtual network card and connecting it to a virtual hub on the guest
@@ -111,7 +111,7 @@ It allows the VM to access TCP and UDP traffic from the outside world but does n
 *Use /-net nic -net user/ if you don't want to use virtio for your network interface.*
 
 
-** Port fowarding
+** ## Port fowarding
 The /hostfwd/ flag permits connections recieved from a port on the host machine to be passed to the port on the guest machine.
 
 /hostfwd=tcp::HOSTPORT-:GUESTPORT/
@@ -126,7 +126,7 @@ The /hostfwd/ flag permits connections recieved from a port on the host machine 
 
 Now I can access a remote command prompt by running /ssh user@127.0.0.1 -p 2222/
 
-** Better mouse support
+** ## Better mouse support
 The usb-tablet pointer device uses absolute coordanites which allows Qemu to report the mouse position without having to grab the mouse. It's generally more responsive.
 
 https://qemu-stsquad.readthedocs.io/en/doc-updates/system/usb.html
@@ -142,7 +142,7 @@ My favorite part it is that you don't have to specify which bus the USB device i
 
 *-device usb-tablet* is the device that we're plugging into the XHCI controller.
 
-** USB passthrough
+** ## USB passthrough
 Run /lsusb -v/ and search for the hexadecimal vendor and product id for your device.
 Substitute those values into this command: 
 
@@ -152,10 +152,10 @@ https://qemu.readthedocs.io/en/latest/system/devices/usb.html
 -device qemu-xhci \
 -device usb-host,vendorid='0x0408',productid='0x1110' \
 #+end_src
-** SPICE agent
+** ## SPICE agent
 According to the Gentoo wiki: *QEMU with SPICE support enables (amongst other things) the more powerful QXL display device and makes clipboard sharing possible (copy/paste between clients and the virtual machine).*
 It enables you to access your guest machine through a VNC-like interface. It supports passing USB devices over the network.
-*** Installing spice
+*** ### Installing spice
 You can run qemu with a spice server without any prerequisite drivers installed.
 If you want clipboard sharing and usb redirection to work, you will have to install the spice guest tools on the guest machine:
 
@@ -167,11 +167,11 @@ https://www.spice-space.org/download/windows/spice-guest-tools/spice-guest-tools
 -chardev spicevmc,id=vdagent,name=vdagent
 #+end_src
 
-*** Connecting to the spice server
+*** ### Connecting to the spice server
 I'm using "spice-gtk" which I installed through my package manager.
 I can run /spicy IPADDRESS:55555/ to get a remote view of my guest VM
 
-*** USB redirection with spice
+*** ### USB redirection with spice
 USB redirection will enable you to pass USB devices from your spice client over the network.
 The shell snippet below only passes USB type 2 devices through.
 Read the documentation for passing USB type 3.
@@ -194,7 +194,7 @@ https://www.spice-space.org/usbredir.html:
 -chardev spicevmc,id=vdagent,name=vdagent \
 #+end_src
 
-*** Host to guest file sharing
+*** ### Host to guest file sharing
   When configuring the network device, you can pass the option "smb=/path" to share a file using samba.
   You will have to install the samba server on the host. Qemu creates a temporary smb.conf file in the /tmp directory.
   
@@ -209,7 +209,7 @@ https://www.spice-space.org/usbredir.html:
   -net nic -net user,smb=$HOME
   #+end_src
   
-** Result
+** ## Result
 Here's the command to run when installing Windows 10. Remember to connect to the machine using your spice client.
 
 #+begin_src shell

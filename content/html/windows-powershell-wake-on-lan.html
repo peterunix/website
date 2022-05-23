@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,18 +32,22 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#windows-powershell-wake-on-lan-multiple-computers">Windows Powershell Wake On Lan Multiple Computers</a>
+<li><a href="#windows-powershell-wake-on-lan-multiple-computers">#
+Windows Powershell Wake On Lan Multiple Computers</a>
 <ul>
-<li><a href="#how-it-works">How it works</a></li>
-<li><a href="#the-script">The script</a></li>
-<li><a href="#usage">Usage</a></li>
+<li><a href="#how-it-works">## How it works</a></li>
+<li><a href="#the-script">## The script</a></li>
+<li><a href="#usage">## Usage</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="windows-powershell-wake-on-lan-multiple-computers">Windows Powershell Wake On Lan Multiple Computers</h1>
-<h2 id="how-it-works">How it works</h2>
-<p>It takes in a comma separated lists of mac addressses, constructs a WOL packet, then sends it out using the .net UDP Client object. The WOL packet is sent out five times for each mac address.</p>
-<h2 id="the-script">The script</h2>
+<h1 id="windows-powershell-wake-on-lan-multiple-computers"># Windows
+Powershell Wake On Lan Multiple Computers</h1>
+<h2 id="how-it-works">## How it works</h2>
+<p>It takes in a comma separated lists of mac addressses, constructs a
+WOL packet, then sends it out using the .net UDP Client object. The WOL
+packet is sent out five times for each mac address.</p>
+<h2 id="the-script">## The script</h2>
 <pre class="shell"><code># WakeOnLan using a comma separated list of mac addresses 
 # $env:macAddrs = &quot;ee:ee:ee:ee:ee:ee,ff:ff:ff:ff:ff:ff&quot;
 
@@ -71,7 +79,7 @@ for($i=0;$i -lt $macArray.Length; $i++){
     }
 }
 </code></pre>
-<h2 id="usage">Usage</h2>
+<h2 id="usage">## Usage</h2>
 <pre class="shell"><code>$env:macAddrs = &quot;ee:ee:ee:ee:ee:ee,ff:ff:ff:ff:ff:ff&quot;
 ./script.sh
 </code></pre>

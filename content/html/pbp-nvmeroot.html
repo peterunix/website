@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,36 +32,42 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#using-nvme-as-os-root">Using NVME as os root</a>
+<li><a href="#using-nvme-as-os-root"># Using NVME as os root</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#preparing-our-nvme">Preparing our nvme</a></li>
-<li><a href="#copying-root-files">Copying root files</a></li>
-<li><a href="#changing-the-root-to-nvme">Changing the root to nvme</a></li>
-<li><a href="#work-arounds">Work arounds</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#preparing-our-nvme">## Preparing our nvme</a></li>
+<li><a href="#copying-root-files">## Copying root files</a></li>
+<li><a href="#changing-the-root-to-nvme">## Changing the root to
+nvme</a></li>
+<li><a href="#work-arounds">## Work arounds</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="using-nvme-as-os-root">Using NVME as os root</h1>
-<h2 id="preface">Preface</h2>
-<p>I assume that you have an nvme drive with a formatted ext4 partition present. I'm using Manjaro Arm. I've tested this on Alarm and I'd imagine it would work on debian aswell. We take advantage of /boot/extlinux/extlinux.conf to choose our root drive.</p>
-<h2 id="preparing-our-nvme">Preparing our nvme</h2>
+<h1 id="using-nvme-as-os-root"># Using NVME as os root</h1>
+<h2 id="preface">## Preface</h2>
+<p>I assume that you have an nvme drive with a formatted ext4 partition
+present. I'm using Manjaro Arm. I've tested this on Alarm and I'd
+imagine it would work on debian aswell. We take advantage of
+/boot/extlinux/extlinux.conf to choose our root drive.</p>
+<h2 id="preparing-our-nvme">## Preparing our nvme</h2>
 <pre class="shell"><code>mount /dev/nvme0n1p1 /mnt
 cd /mnt
 mkdir dev sys proc mnt
 </code></pre>
-<h2 id="copying-root-files">Copying root files</h2>
-<p>It's important to exclude the psuedo filesystems and /mnt, when copying your root files.</p>
+<h2 id="copying-root-files">## Copying root files</h2>
+<p>It's important to exclude the psuedo filesystems and /mnt, when
+copying your root files.</p>
 <pre class="shell"><code>rsync -aHxv --numeric-ids --progress /* /mnt --exclude=/dev --exclude=/proc --exclude=/sys --exclude=/mnt
 </code></pre>
-<h2 id="changing-the-root-to-nvme">Changing the root to nvme</h2>
+<h2 id="changing-the-root-to-nvme">## Changing the root to nvme</h2>
 <pre class="shell"><code>$ mv /mnt/boot /mnt/boot.old
 $ vim /boot/extlinux/extlinux.conf
 
 # Change &quot;root=LABEL=ROOT&quot; to &quot;root=/dev/nvme0n1p1&quot;
 </code></pre>
-<h2 id="work-arounds">Work arounds</h2>
-<p>If the boot partition is "read only", you can remount it with rw permissions as so:</p>
+<h2 id="work-arounds">## Work arounds</h2>
+<p>If the boot partition is "read only", you can remount it with rw
+permissions as so:</p>
 <pre class="shell"><code>$ mount /dev/mmcblk1p1 /boot -o remount,rw
 </code></pre>
 <small><a href="/">Back to index</a><small>

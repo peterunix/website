@@ -1,0 +1,31 @@
+* Setting up NFS share in Debain Linux
+** Dependencies
+#+begin_src shell
+apt install nfs-kernel portmap
+#+end_src
+
+** Generating share
+Edit /etc/exports
+
+#+begin_src shell
+/media/nfs              192.168.1.0/24(rw,sync,no_subtree_check)
+/media/nfs              192.168.1.112(rw,sync,no_subtree_check) 192.168.1.121(ro,sync,no_subtree_check)
+#+end_src
+
+ro: Specifies that the directory may only be mounted as read only
+
+rw: Grants both read and write permissions on the directory
+
+no_root_squash: Root squash is an extremely dangerous option that allows remote “root” users the same privilege as the “root” user of the host machine
+
+subtree_check: In the case of a directory being exported instead of an entire filesystem, the host should verify the location of files and directories on the host filesystem
+
+no_subtree_check: Specifies that the host should not check the location of the files being accessed withing the host filesystem
+
+sync: This just ensures that the host keeps any changes uploaded to the shared directory in sync
+
+async: Ignores synchronization checks in favor of increased speed
+
+#+begin_src shell
+systemctl restart nfs-kernel-server
+#+end_src

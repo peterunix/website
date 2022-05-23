@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,26 +32,36 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#securing-remote-users">Securing remote users</a>
+<li><a href="#securing-remote-users"># Securing remote users</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#ssh-keys">SSH keys</a></li>
-<li><a href="#ssh-key-generation">SSH key generation</a></li>
-<li><a href="#restrict-user-commands">Restrict user commands</a></li>
-<li><a href="#changing-shell">Changing shell</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#ssh-keys">## SSH keys</a></li>
+<li><a href="#ssh-key-generation">## SSH key generation</a></li>
+<li><a href="#restrict-user-commands">## Restrict user commands</a></li>
+<li><a href="#changing-shell">## Changing shell</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="securing-remote-users">Securing remote users</h1>
-<h2 id="preface">Preface</h2>
-<p>A general guide on securing remote user accounts. Here's the rundown:</p>
-<p>Generate SSH keys for secure authentication</p>
-<p>Restrict user command access</p>
-<p>Changing user shell</p>
-<h2 id="ssh-keys">SSH keys</h2>
-<p>Using key based authentication over password based authentication completely eliminates attackers from being able to remotely log into our machine over ssh. SSH keys will require the individual to have access to the generated key file in order to login. A long and complicated password is also sufficient security-wise. I recommened using a passphrase of several random words strung together.</p>
-<h2 id="ssh-key-generation">SSH key generation</h2>
-<p>This command will generate two files. An ssh public key and an ssh private key. We'll upload the public key to our server and then login using our private key. By default, this command generates the keys in the "~/.ssh/" directory.</p>
+<h1 id="securing-remote-users"># Securing remote users</h1>
+<h2 id="preface">## Preface</h2>
+<p>This is a general guide to securing a Linux user.</p>
+<p>We're going to do a few things:</p>
+<ul>
+<li>Setup SSH keys</li>
+<li>Change the user</li>
+</ul>
+<h2 id="ssh-keys">## SSH keys</h2>
+<p>Using key based authentication over password based authentication
+completely eliminates attackers from being able to remotely log into our
+machine over ssh. SSH keys will require the individual to have access to
+the generated key file in order to login. A long and complicated
+password is also sufficient security-wise. I recommened using a
+passphrase of several random words strung together.</p>
+<h2 id="ssh-key-generation">## SSH key generation</h2>
+<p>This command will generate two files. An ssh public key and an ssh
+private key. We'll upload the public key to our server and then login
+using our private key. By default, this command generates the keys in
+the "~/.ssh/" directory.</p>
 <pre><code># Generating the key pair
 ssh-keygen -t rsa  -b 4096
 
@@ -58,7 +72,8 @@ ssh-copy-id -i /path/to/idrsa.pub user@10.0.0.1
 ssh -i /path/to/idrsa user@10.0.0.1
 user&gt; echo &quot;IT WORKS!!!&quot;
 </code></pre>
-<p>We also want to disable password based authentication in our ssh config</p>
+<p>We also want to disable password based authentication in our ssh
+config</p>
 <pre><code>vim /etc/ssh/sshd_config
 # Add/modify the lines
 PermitRootLogin no
@@ -67,11 +82,18 @@ PasswordAuthentication no
 
 systemctl restart sshd
 </code></pre>
-<p>Add the following if you only want to allow a ssh access to a specific user:</p>
+<p>Add the following if you only want to allow a ssh access to a
+specific user:</p>
 <pre><code>AllowUsers username
 </code></pre>
-<h2 id="restrict-user-commands">Restrict user commands</h2>
-<p>In the event that an attacker gains access to our user account, we want to restrict any possible vulnerabilities that could lead to privledge escalation. Since we generally only work as a root user when configuring our servers, we'll only allow our user access to the "su" command and nothing more. We'll create a bash profile and change the user's path variable. We'll restrict it permitting read and execute permissions.</p>
+<h2 id="restrict-user-commands">## Restrict user commands</h2>
+<p>In the event that an attacker gains access to our user account, we
+want to restrict any possible vulnerabilities that could lead to
+privledge escalation. Since we generally only work as a root user when
+configuring our servers, we'll only allow our user access to the "su"
+command and nothing more. We'll create a bash profile and change the
+user's path variable. We'll restrict it permitting read and execute
+permissions.</p>
 <pre><code>cd /home/user
 mkdir programs
 export PATH=~/programs /user/home/.bashrc
@@ -83,9 +105,13 @@ ln -s /usr/bin/su /home/user/programs/
 chown -R root:user programs .bash_profile
 chmod -R 0750 programs .bash_profile
 </code></pre>
-<p>Now you're restricted to only using the "su" command when logging into the user.</p>
-<h2 id="changing-shell">Changing shell</h2>
-<p>Depending on your use case, it is also beneficial to change the users shell. You can change the shell to something like "/sbin/nologin" to disable logins, or rbash. Rbash stands for "restricted bash". In a nutshell, it's bash with restricted shell functions.</p>
+<p>Now you're restricted to only using the "su" command when logging
+into the user.</p>
+<h2 id="changing-shell">## Changing shell</h2>
+<p>Depending on your use case, it is also beneficial to change the users
+shell. You can change the shell to something like "/sbin/nologin" to
+disable logins, or rbash. Rbash stands for "restricted bash". In a
+nutshell, it's bash with restricted shell functions.</p>
 <pre><code>usermod -s /usr/bin/rbash user
 </code></pre>
 <small><a href="/">Back to index</a><small>

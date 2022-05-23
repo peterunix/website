@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,28 +32,40 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#letsencrypt-with-openbsd">Letsencrypt with OpenBsd</a>
+<li><a href="#letsencrypt-with-openbsd"># Letsencrypt with OpenBsd</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#setting-things-up">Setting things up</a></li>
-<li><a href="#editing-the-config">Editing the config</a></li>
-<li><a href="#generating-the-cert">Generating the cert</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#setting-things-up">## Setting things up</a></li>
+<li><a href="#editing-the-config">## Editing the config</a></li>
+<li><a href="#generating-the-cert">## Generating the cert</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="letsencrypt-with-openbsd">Letsencrypt with OpenBsd</h1>
-<h2 id="preface">Preface</h2>
-<p>Installing ssl certificates is a breeze with OpenBsd. We'll use acme-client to generate our certs. I'm asssuming that you've already added your servers ip to your domain's dns records.</p>
-<h2 id="setting-things-up">Setting things up</h2>
-<p>There ain't too much to do here. We'll add our domain name to acme-client's config and then start the httpd web server. The acme client creates a file in <em>var/www/acme</em> which is accessible over the webserver. This file is then transmitted to Let's Encrypt. Let's Encrypt then attempts to download this file from our domain (<a href="http://example.com/path/to/file">http://example.com/path/to/file</a>). If the file is the same as the file sent from our localmachine, then Let's Encrypt knows that our server is legitamite and not a bad actor posing as the owner of the domain.</p>
+<h1 id="letsencrypt-with-openbsd"># Letsencrypt with OpenBsd</h1>
+<h2 id="preface">## Preface</h2>
+<p>Installing ssl certificates is a breeze with OpenBsd. We'll use
+acme-client to generate our certs. I'm asssuming that you've already
+added your servers ip to your domain's dns records.</p>
+<h2 id="setting-things-up">## Setting things up</h2>
+<p>There ain't too much to do here. We'll add our domain name to
+acme-client's config and then start the httpd web server. The acme
+client creates a file in <em>var/www/acme</em> which is accessible over
+the webserver. This file is then transmitted to Let's Encrypt. Let's
+Encrypt then attempts to download this file from our domain (<a
+href="http://example.com/path/to/file">http://example.com/path/to/file</a>).
+If the file is the same as the file sent from our localmachine, then
+Let's Encrypt knows that our server is legitamite and not a bad actor
+posing as the owner of the domain.</p>
 <pre><code># Copy config file
 cp /etc/example/acme-client.conf /etc/
 
 # Start the webserver
 rcctl -f start httpd
 </code></pre>
-<h2 id="editing-the-config">Editing the config</h2>
-<p>I don't need to explain anything here. Just replace "example.com" with your domain name in /etc/acme-client.configuration. It should look somethings like this:</p>
+<h2 id="editing-the-config">## Editing the config</h2>
+<p>I don't need to explain anything here. Just replace "example.com"
+with your domain name in /etc/acme-client.configuration. It should look
+somethings like this:</p>
 <pre class="shell"><code>#
 # $OpenBSD: acme-client.conf,v 1.4 2020/09/17 09:13:06 florian Exp $
 #
@@ -82,8 +98,10 @@ domain unixfandom.com {
         sign with letsencrypt
 }
 </code></pre>
-<h2 id="generating-the-cert">Generating the cert</h2>
-<p>One thing I haven't tested is having more than one alternative domain listed. I'm not sure if you separate the domains by space or comma - I should test this…</p>
+<h2 id="generating-the-cert">## Generating the cert</h2>
+<p>One thing I haven't tested is having more than one alternative domain
+listed. I'm not sure if you separate the domains by space or comma - I
+should test this…</p>
 <pre class="shell"><code>acme-client unixfandom.com
 
 # Cert path

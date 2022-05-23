@@ -1,5 +1,5 @@
-* Windows Changing Group Policy Rules from the Command Prompt
-** Preface
+* # Windows Changing Group Policy Rules from the Command Prompt
+** ## Preface
 Many of the group policy changes can be made from the registry.
 The registry keys override the changes made in GPEDIT.MSC.
 Microsoft has an Excel spreadsheet that outlines each group policy rule, it's description, path in GPEDIT.MSC, and the path in the registry.
@@ -15,12 +15,12 @@ Even though we can't edit the database, Microsoft has a separate utility we can 
 
 This is better than the registry since the changes are reflected in group policy and auditing policies are able to be setup without to connet to each computer.
 
-** LGPO.EXE
+** ## LGPO.EXE
 You can download the [[https://www.microsoft.com/en-us/download/details.aspx?id=55319][Microsoft Security Compliance Toolkit here]].
 Download the LGPO zip file.
 LGPO.EXE can be run portably.
 
-** Usage
+** ## Usage
 There are several different command line flags for this utility.
 This probably isn't ideal, but I modify my local group policy on my computer and then make a backup.
 The backup is then imported to other computers that I'm prepping.

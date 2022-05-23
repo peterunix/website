@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,30 +32,40 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#converting-flac-to-high-quality-mp3-files-with-ffmpeg">Converting Flac to high quality mp3 files with ffmpeg</a>
+<li><a href="#converting-flac-to-high-quality-mp3-files-with-ffmpeg">#
+Converting Flac to high quality mp3 files with ffmpeg</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#actually-doing-it">Actually doing it</a></li>
-<li><a href="#mass-converting-files">Mass converting files</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#actually-doing-it">## Actually doing it</a></li>
+<li><a href="#mass-converting-files">## Mass converting files</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="converting-flac-to-high-quality-mp3-files-with-ffmpeg">Converting Flac to high quality mp3 files with ffmpeg</h1>
-<h2 id="preface">Preface</h2>
-<p>The goal is to convert a flac file into a 320kb/s MP3 file whilst retaining all metadata. The only dependencies you need are "ffmpeg" and "id3v2". The ladder is used for embeding metadata.</p>
-<h2 id="actually-doing-it">Actually doing it</h2>
+<h1 id="converting-flac-to-high-quality-mp3-files-with-ffmpeg">#
+Converting Flac to high quality mp3 files with ffmpeg</h1>
+<h2 id="preface">## Preface</h2>
+<p>The goal is to convert a flac file into a 320kb/s MP3 file whilst
+retaining all metadata. The only dependencies you need are "ffmpeg" and
+"id3v2". The ladder is used for embeding metadata.</p>
+<h2 id="actually-doing-it">## Actually doing it</h2>
 <p>Description of the commands listed below</p>
 <pre class="shell"><code>ffmpeg -i &quot;input.flac&quot; -codec:a libmp3lame -map_metadata 0 -id3v2_version 3 -write_id3v1 1 -map a:0 -b:a 320k &quot;output.mp3&quot;
 </code></pre>
 <p>"-i" Pass our input file</p>
 <p>"-codec:a" Passing our preffered audio codec</p>
-<p>"-map_metadata" This copies over metadata from our input file. "0"</p>
+<p>"-map_metadata" This copies over metadata from our input
+file. "0"</p>
 <p>tells it to use the default options</p>
-<p>"-id3v2_version" These id3v options have something to do with metadata.</p>
-<p>"-map a:0" I think this makes it so ffmpeg ONLY outputs the audio streams to the mp3 file. Otherwise ffmpeg tries to copy the album art from the flac file, which MP3 files cannot handle. Errors will be thrown without this option.</p>
+<p>"-id3v2_version" These id3v options have something to do
+with metadata.</p>
+<p>"-map a:0" I think this makes it so ffmpeg ONLY outputs the audio
+streams to the mp3 file. Otherwise ffmpeg tries to copy the album art
+from the flac file, which MP3 files cannot handle. Errors will be thrown
+without this option.</p>
 <p>"-b:a 320k" This is our audio bitrate</p>
-<h2 id="mass-converting-files">Mass converting files</h2>
-<p>Here's the script which I'm currently using to convert my music. FFmpeg is set to output the mp3 files to the "./mp3/" directory.</p>
+<h2 id="mass-converting-files">## Mass converting files</h2>
+<p>Here's the script which I'm currently using to convert my music.
+FFmpeg is set to output the mp3 files to the "./mp3/" directory.</p>
 <pre class="shell"><code>#!/bin/sh
 for file in $(find &#39;/path/to/music_dir/&#39; -type f | grep -vE &quot;*.jpg|*.log|*.jpeg|
 *.png&quot;)

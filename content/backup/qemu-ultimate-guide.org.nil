@@ -1,0 +1,256 @@
+* Ultimate Qemu Guide
+** Todo
+1. FIX SPICE USING EHCI INSTEAD OF XHCI USB CONTROLLER
+2. Port fowarding usermode networking
+
+** Preface
+How to install Windows 10 (or any VM for that matter) using Qemu. We're utilizing KVM and Virtio to drastically increase performance. Using "spicy", we can access our guest machine over the network. This allows for clipboard sharing along with the ability to redirect USB devices over the network.
+
+** Creating a virtual machine image 
+Let's create an image with the qcow2 format and 30G of allocated space.
+The qcow2 format only takes up as much space as you put in it.
+A 30Gb image with 5Gb of data will only use 5Gb.
+
+#+begin_src shell
+qemu-img create -f qcow2 windows10.qcow2 30G
+#+end_src
+
+** Basic usage
+Here's the most basic usage of Qemu. This method is incredibly slow.
+
+#+begin_src shell
+qemu-system-x86_64 \
+	-smp 4 \
+	-m 3G \
+	-boot d \
+	-cdrom winInstaller.iso \
+	win10.qcow2
+#+end_src
+
+*-smp* Specifies the number of cores to use. Read the manual page for more features.
+
+*-m* Ram to use in gigabytes. Use "M" for megabytes
+
+*-boot d* Boot from the cdrom first.
+
+*-cdrom*  The windows install media
+
+** KVM with Virtio 
+Installing a guest machine using KVM with Virtio increases your vm's throughput and performance immensely.
+Use this method of installing Windows over what I showed you previously.
+*** KVM
+KVM (Kernel-based Virtual Machine) is a linux hypervisor that runs virtualized guests with pretty good speeds.
+KVM is built into the newer linux kernels and can be run through qemu directly.
+
+https://mkdev.me/en/posts/virtualization-basics-and-an-introduction-to-kvm
+
+#+begin_src shell
+qemu-system-x86_64 -enable-kvm -smp 4 -m 3G windows10.qcow2
+#+end_src
+
+*** Virtio
+KVM allows you to virtualize the OS but it doesn't virtualize the network and disk devices.
+That job is handed to the guest machine to emulate.
+Virtio is a driver that can be installed onto the VM and allows for virtualized network and disks.
+It improves performance *drastically*.
+
+https://wiki.libvirt.org/page/Virtio
+
+When installing the Windows guest OS, you have to direct Qemu to use the VM image with the virtio interface.
+Click the button to browse for offline drivers when you're installing Windows and navigate to the virtio folder.
+
+Download the latest virtio ISO here: 
+
+https://fedorapeople.org/groups/virt/virtio-win/direct-downloads/
+
+#+begin_src shell
+# Installing Windows with virtio and kvm
+qemu-system-x86_64 \
+	-enable-kvm \
+	-cpu host -smp 4 \
+	-m 3G \
+	-boot d \
+	-cdrom  "win10Install.iso" \
+	-device virtio-net,netdev=netdevice -netdev user,id=netdevice \
+	-drive file="virtio-win-0.1.208.iso",index=3,media=cdrom \
+	-drive file=windows10.qcow2,if=virtio,cache=none,aio=native \
+#+end_src
+
+*-enable-kvm* Use the KVM hypervisor
+
+*-cpu host* Copy the host processor features and model to the guest machine
+
+*-smp 4* Number of cores to use
+
+*-m 3G* Specify ram to use
+
+*-boot d* Boot from cdrom
+
+*-cdrom* The Windows install media
+
+*-device virtio-net[...]* Enables "passthrough" (or usermode) networking with the virtio driver. The id parameter is a symbolic name that you can use when running qemu monitor commands. That's outside the scope of my knowledge. 
+
+*-drive file="virtio"[...]*  This is a more advanced way of adding block devices. *file* defines which image to use. 
+*index=3* defines where the device is connected to by using an index number (avoids conflict with our cdrom device).
+*media* defines whether this is a drive or a cdrom device
+
+*-drive file="win10[...]* The arguement *if=virtio* defines which interface the drive is connected to.
+Examples of other interfaces would be ide, floppy, etc.
+*cache=none* describes how the host cache is used to access block data.
+Disabling caching greatly improves io speeds.
+*aio=native* specifies the asynchronous io backend to use. Setting this to "native" also increases io speeds.
+
+** Usermode networking explained
+When we enable networking through the previous command, we're doing two things:
+
+1. Creating a virtual network card and connecting it to a virtual hub on the guest
+2. Specifying the network backend to use and connecting it to the virtual hub on the guest
+
+It allows the VM to access TCP and UDP traffic from the outside world but does not allow for ICMP, host to guest connections, and assigning a guest it's own IP.
+
+*Use /-net nic -net user/ if you don't want to use virtio for your network interface.*
+
+
+** Port fowarding
+The /hostfwd/ flag permits connections recieved from a port on the host machine to be passed to the port on the guest machine.
+
+/hostfwd=tcp::HOSTPORT-:GUESTPORT/
+
+#+begin_src shell
+# Host fowarding with virtio drivers
+-device virtio-net,netdev=netdevice -netdev user,id=netdevice,hostfwd=127.0.0.1:2222-:22 \
+
+# Host fowarding with without virtio drivers
+-net nic -net user,hostfwd=tcp:127.0.0.1:2222-:22 \
+#+end_src
+
+Now I can access a remote command prompt by running /ssh user@127.0.0.1 -p 2222/
+
+** Better mouse support
+The usb-tablet pointer device uses absolute coordanites which allows Qemu to report the mouse position without having to grab the mouse. It's generally more responsive.
+
+https://qemu-stsquad.readthedocs.io/en/doc-updates/system/usb.html
+
+ #+begin_src shell
+-device qemu-xhci \
+-device usb-tablet
+ #+end_src
+
+*-device qemu-xhci* is the USB controller we're emulating.
+It supports USB 1.1, 2, 3, and it's lighter on your CPU compared to other controllers.
+My favorite part it is that you don't have to specify which bus the USB device is plugging into.
+
+*-device usb-tablet* is the device that we're plugging into the XHCI controller.
+
+** USB passthrough
+Run /lsusb -v/ and search for the hexadecimal vendor and product id for your device.
+Substitute those values into this command: 
+
+https://qemu.readthedocs.io/en/latest/system/devices/usb.html
+
+#+begin_src
+-device qemu-xhci \
+-device usb-host,vendorid='0x0408',productid='0x1110' \
+#+end_src
+** SPICE agent
+According to the Gentoo wiki: *QEMU with SPICE support enables (amongst other things) the more powerful QXL display device and makes clipboard sharing possible (copy/paste between clients and the virtual machine).*
+It enables you to access your guest machine through a VNC-like interface. It supports passing USB devices over the network.
+*** Installing spice
+You can run qemu with a spice server without any prerequisite drivers installed.
+If you want clipboard sharing and usb redirection to work, you will have to install the spice guest tools on the guest machine:
+
+https://www.spice-space.org/download/windows/spice-guest-tools/spice-guest-tools-latest.exe
+
+#+begin_src shell
+-vga qxl \
+-spice port=55555,addr=0.0.0.0,disable-ticketing \
+-chardev spicevmc,id=vdagent,name=vdagent
+#+end_src
+
+*** Connecting to the spice server
+I'm using "spice-gtk" which I installed through my package manager.
+I can run /spicy IPADDRESS:55555/ to get a remote view of my guest VM
+
+*** USB redirection with spice
+USB redirection will enable you to pass USB devices from your spice client over the network.
+The shell snippet below only passes USB type 2 devices through.
+Read the documentation for passing USB type 3.
+
+https://www.spice-space.org/usbredir.html:
+
+#+begin_src shell
+-device ich9-usb-ehci1,id=usb \
+-device ich9-usb-uhci1,masterbus=usb.0,firstport=0,multifunction=on \
+-device ich9-usb-uhci2,masterbus=usb.0,firstport=2 \
+-device ich9-usb-uhci3,masterbus=usb.0,firstport=4 \
+-chardev spicevmc,name=usbredir,id=usbredirchardev1 \
+-device usb-redir,chardev=usbredirchardev1,id=usbredirdev1 \
+-chardev spicevmc,name=usbredir,id=usbredirchardev2 \
+-device usb-redir,chardev=usbredirchardev2,id=usbredirdev2 \
+-chardev spicevmc,name=usbredir,id=usbredirchardev3 \
+-device usb-redir,chardev=usbredirchardev3,id=usbredirdev3 \
+-vga qxl \
+-spice port=55555,addr=0.0.0.0,disable-ticketing \
+-chardev spicevmc,id=vdagent,name=vdagent \
+#+end_src
+
+*** Host to guest file sharing
+  When configuring the network device, you can pass the option "smb=/path" to share a file using samba.
+  You will have to install the samba server on the host. Qemu creates a temporary smb.conf file in the /tmp directory.
+  
+  #+begin_src shell
+  # Install samba
+  sudo apt install samba -y
+  
+  # Samba share with virtio driver
+  -device virtio-net,netdev=netdevice -netdev user,id=netdevice,smb=$HOME \
+  
+  # Without virtio 
+  -net nic -net user,smb=$HOME
+  #+end_src
+  
+** Result
+Here's the command to run when installing Windows 10. Remember to connect to the machine using your spice client.
+
+#+begin_src shell
+# Installing Windows with virtio and kvm
+qemu-system-x86_64 \
+	-enable-kvm \
+	-cpu host -smp 4 \
+	-m 3G \
+	-boot d \
+	-cdrom  "win10Install.iso" \
+	-vga qxl \
+	-spice port=55555,addr=0.0.0.0,disable-ticketing \
+	-chardev spicevmc,id=vdagent,name=vdagent \
+	-device virtio-net,netdev=netdevice -netdev user,id=netdevice,smb=$HOME \
+	-drive file="virtio-win-0.1.208.iso",index=3,media=cdrom \
+	-drive file=windows10.qcow2,if=virtio,cache=none,aio=native
+#+end_src
+
+Here is how to run your VM after finishing the Windows install.
+I recommend creating a script for this.
+
+#+begin_src shell
+qemu-system-x86_64 \
+	-enable-kvm \
+	-cpu host -smp 4 \
+	-m 3G \
+	-usb \
+	-device virtio-net,netdev=netdevice -netdev user,id=netdevice,smb=$HOME \
+	-device ich9-usb-ehci1,id=usb \
+	-device usb-tablet \
+	-device ich9-usb-uhci1,masterbus=usb.0,firstport=0,multifunction=on \
+	-device ich9-usb-uhci2,masterbus=usb.0,firstport=2 \
+	-device ich9-usb-uhci3,masterbus=usb.0,firstport=4 \
+	-chardev spicevmc,name=usbredir,id=usbredirchardev1 \
+	-device usb-redir,chardev=usbredirchardev1,id=usbredirdev1 \
+	-chardev spicevmc,name=usbredir,id=usbredirchardev2 \
+	-device usb-redir,chardev=usbredirchardev2,id=usbredirdev2 \
+	-chardev spicevmc,name=usbredir,id=usbredirchardev3 \
+	-device usb-redir,chardev=usbredirchardev3,id=usbredirdev3 \
+	-vga qxl \
+	-spice port=55555,addr=0.0.0.0,disable-ticketing \
+	-chardev spicevmc,id=vdagent,name=vdagent \
+	-drive file=windows10.qcow2,if=virtio,cache=none,aio=native
+#+end_src

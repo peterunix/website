@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,22 +32,30 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#chrooting-into-systems-with-different-architectures">Chrooting into systems with different architectures</a>
+<li><a href="#chrooting-into-systems-with-different-architectures">#
+Chrooting into systems with different architectures</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#dependencies">Dependencies</a></li>
-<li><a href="#chrooting">Chrooting</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#dependencies">## Dependencies</a></li>
+<li><a href="#chrooting">## Chrooting</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="chrooting-into-systems-with-different-architectures">Chrooting into systems with different architectures</h1>
-<h2 id="preface">Preface</h2>
-<p>The qemu-user-static package provides several usermode emulation binaries. We can copy these over to our chroot environment to emulate programs from a different architecture.</p>
-<h2 id="dependencies">Dependencies</h2>
-<p>The emulation binaries will be placed in /usr/bin/qemu-*-static. These are standalone applications don't require dependencies. The arch-install-scripts provide the "arch-chroot" wrapper script. It handles mounting the psuedo filesystems (dev,proc,sys) so we don't have to.</p>
+<h1 id="chrooting-into-systems-with-different-architectures"># Chrooting
+into systems with different architectures</h1>
+<h2 id="preface">## Preface</h2>
+<p>The qemu-user-static package provides several usermode emulation
+binaries. We can copy these over to our chroot environment to emulate
+programs from a different architecture.</p>
+<h2 id="dependencies">## Dependencies</h2>
+<p>The emulation binaries will be placed in /usr/bin/qemu-*-static.
+These are standalone applications don't require dependencies. The
+arch-install-scripts provide the "arch-chroot" wrapper script. It
+handles mounting the psuedo filesystems (dev,proc,sys) so we don't have
+to.</p>
 <pre class="shell"><code>apt install qemu-user-static arch-install-scripts
 </code></pre>
-<h2 id="chrooting">Chrooting</h2>
+<h2 id="chrooting">## Chrooting</h2>
 <p>Here's me chrooting into Raspbian ARM.</p>
 <pre class="shell"><code># Mounting raspbian paritions
 mount /dev/sdb2 /mnt

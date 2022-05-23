@@ -1,9 +1,9 @@
-* Chrooting into systems with different architectures
-** Preface
+* # Chrooting into systems with different architectures
+** ## Preface
 Full disk images contain the bootloader and partition table.
 To mount an image file, we specify a /byte offset/ that points to the beginning of our linux partition.
 
-** Locating the start of a partition
+** ## Locating the start of a partition
 Run /fdisk -l file.img/.
 #+begin_src shell
 [...]

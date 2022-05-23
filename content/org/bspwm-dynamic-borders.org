@@ -1,7 +1,7 @@
 
-* BSPWM Dynamic Borders
+* # BSPWM Dynamic Borders
 
-** Preface
+** ## Preface
 Dynamically change the border size when there is either a single node
 or multiple nodes on the focused desktop
 
@@ -42,6 +42,6 @@ _Main(){
 _Main < "$dynamicborder_fifo"
 #+end_src
 
-** Example
+** ## Example
 
    Here's a gif showcasing how it works

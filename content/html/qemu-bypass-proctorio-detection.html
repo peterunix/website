@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,25 +32,34 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#bypassing-vm-detection-on-proctorio">Bypassing VM detection on Proctorio</a>
+<li><a href="#bypassing-vm-detection-on-proctorio"># Bypassing VM
+detection on Proctorio</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#proctorio-features">Proctorio features</a></li>
-<li><a href="#reverse-enginerring">Reverse enginerring</a>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#proctorio-features">## Proctorio features</a></li>
+<li><a href="#reverse-enginerring">## Reverse enginerring</a>
 <ul>
-<li><a href="#extracting-the-crx-file">Extracting the CRX file</a></li>
-<li><a href="#analyzing-the-files">Analyzing the files</a></li>
+<li><a href="#extracting-the-crx-file">### Extracting the CRX
+file</a></li>
+<li><a href="#analyzing-the-files">### Analyzing the files</a></li>
 </ul></li>
-<li><a href="#hiding-qemu-incomplete">Hiding Qemu [incomplete]</a></li>
+<li><a href="#hiding-qemu-incomplete">## Hiding Qemu
+[incomplete]</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="bypassing-vm-detection-on-proctorio">Bypassing VM detection on Proctorio</h1>
-<h2 id="preface">Preface</h2>
-<p>No, this is not for cheating. I want to be able to use Proctorio on my Linux machine.</p>
-<h2 id="proctorio-features">Proctorio features</h2>
-<p>Proctorio's VM detection is limited to the capabilities of the Chrome API's</p>
-<p><a href="https://old.reddit.com/r/AskNetsec/comments/iquxdb/can_a_browser_extension_scan_procceses_detect/">https://old.reddit.com/r/AskNetsec/comments/iquxdb/can_a_browser_extension_scan_procceses_detect/</a> <a href="https://old.reddit.com/r/UBC/comments/j0gq1m/psa_forced_to_use_proctorio_then_run_a_virtual/">https://old.reddit.com/r/UBC/comments/j0gq1m/psa_forced_to_use_proctorio_then_run_a_virtual/</a></p>
+<h1 id="bypassing-vm-detection-on-proctorio"># Bypassing VM detection on
+Proctorio</h1>
+<h2 id="preface">## Preface</h2>
+<p>No, this is not for cheating. I want to be able to use Proctorio on
+my Linux machine.</p>
+<h2 id="proctorio-features">## Proctorio features</h2>
+<p>Proctorio's VM detection is limited to the capabilities of the Chrome
+API's</p>
+<p><a
+href="https://old.reddit.com/r/AskNetsec/comments/iquxdb/can_a_browser_extension_scan_procceses_detect/">https://old.reddit.com/r/AskNetsec/comments/iquxdb/can_a_browser_extension_scan_procceses_detect/</a>
+<a
+href="https://old.reddit.com/r/UBC/comments/j0gq1m/psa_forced_to_use_proctorio_then_run_a_virtual/">https://old.reddit.com/r/UBC/comments/j0gq1m/psa_forced_to_use_proctorio_then_run_a_virtual/</a></p>
 <ol>
 <li>Reads CPU model information</li>
 <li>Reads and manages tabs</li>
@@ -54,19 +67,23 @@
 <li>Reads running processes</li>
 <li>Screen captures the desktop</li>
 <li>Tracks eye movement</li>
-<li>Tracks keyboard input. It compares how much you use the keyboard and determines whether to flag you.</li>
+<li>Tracks keyboard input. It compares how much you use the keyboard and
+determines whether to flag you.</li>
 </ol>
-<h2 id="reverse-enginerring">Reverse enginerring</h2>
-<p>I was able to get a basic understanding of how it detects VMS through some reverse engineering of the chrome extension.</p>
+<h2 id="reverse-enginerring">## Reverse enginerring</h2>
+<p>I was able to get a basic understanding of how it detects VMS through
+some reverse engineering of the chrome extension.</p>
 <p>I downloaded the extension using this template:</p>
 <pre class="shell"><code>https://clients2.google.com/service/update2/crx?response=redirect&amp;acceptformat=crx2,crx3&amp;prodversion=[VERSION]&amp;x=id%3D[EXTENSION_ID]%26installsource%3Dondemand%26uc
 </code></pre>
 <p>Substitute [VERSION] with your chrome version.</p>
-<p>Substitute [EXTENSION_ID] with the id found in the chrome store url:</p>
+<p>Substitute [EXTENSION_ID] with the id found in the chrome
+store url:</p>
 <pre class="shell"><code>chrome.google.com/webstore/detail/proctorio/[fpmapakogndmenjcfoajifaaonnkpkei]
 </code></pre>
-<h3 id="extracting-the-crx-file">Extracting the CRX file</h3>
-<p>Crx files are renamed zip files. The archive contains heavily obfuscated javascript along with equally obfuscated file names.</p>
+<h3 id="extracting-the-crx-file">### Extracting the CRX file</h3>
+<p>Crx files are renamed zip files. The archive contains heavily
+obfuscated javascript along with equally obfuscated file names.</p>
 <pre class="shell"><code>assets/
 _metadata/
 _locales/
@@ -77,23 +94,33 @@ manifest.json
 proctorio.nmf
 SECURITY.txt
 </code></pre>
-<h3 id="analyzing-the-files">Analyzing the files</h3>
-<p>Along with Vim, I used <em>grep -io &lt;word&gt; *</em> to parse the code in the assets directory.</p>
-<p>The file "Js2Q.js" appears to list all the system and security checks the proctor software uses. It runs some type of function when ever the following events occur:</p>
+<h3 id="analyzing-the-files">### Analyzing the files</h3>
+<p>Along with Vim, I used <em>grep -io &lt;word&gt; *</em> to parse the
+code in the assets directory.</p>
+<p>The file "Js2Q.js" appears to list all the system and security checks
+the proctor software uses. It runs some type of function when ever the
+following events occur:</p>
 <pre class="shell"><code>blur focus focusin focusout load resize scroll unload click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select submit keydown keypress keyup error contextmenu
 </code></pre>
-<p>The software also appears to collect the CPU architecture, features, model name, core count, and usage.</p>
+<p>The software also appears to collect the CPU architecture, features,
+model name, core count, and usage.</p>
 <pre class="shell"><code>cpu.getInfo((function(n){for(var e=[n.archName,n.features,Kr(n.modelName),n.numOfProcessors,[],[],[]],r=0,o=0,u=0;u&lt;n.processors.length;u++)e[4].push([n.processors[u].usage.idle,n.processors[u].usage.kernel,n.processors[u].usage.total,n.processors[u].usage.user,o])
 </code></pre>
-<p>Here's a list of blacklisted names for microphones and webcam devices. I notice it blacklists vmware, virtualbox, and parallel. I don't see qemu or kvm listed here.</p>
+<p>Here's a list of blacklisted names for microphones and webcam
+devices. I notice it blacklists vmware, virtualbox, and parallel. I
+don't see qemu or kvm listed here.</p>
 <pre class="shell"><code>&quot;virtual microphone&quot;,&quot;virtual audio&quot;,&quot;splitcam&quot;,&quot;manycam&quot;,&quot;logmein&quot;,&quot;parallels access sound&quot;,&quot;parallels audio controller&quot;,&quot;avermedia&quot;,&quot;vmware&quot;,&quot;vdp source&quot;,&quot;vixs puretv&quot;,&quot;airparrot&quot;,&quot;virtualbox&quot;,&quot;sound siphon&quot;,&quot;bytescout&quot;,&quot;blackmagic&quot;,&quot;soundflower&quot;,&quot;what u hear&quot;,&quot;nomachine&quot;,&quot;screaming bee&quot;,&quot;apowersoft_audiodevice&quot;,&quot;remote proctor&quot;,&quot;magic sound&quot;,&quot;morphvox audio&quot;,&quot;manycam virtual microphone&quot;,&quot;logmeinsounddriver&quot;,&quot;airparrot&quot;,&quot;remote audio&quot;,&quot;line 1 (virtual audio cable)&quot;,&quot;morphvox audio&quot;,&quot;pro tools aggregate i/o&quot;,&quot;autoaggdevice&quot;,&quot;procasteraudioredirector&quot;,&quot;twat 69&quot;,&quot;microphone (screaming bee audio)&quot;,&quot;cable output (vb-audio virtual cable)&quot;,&quot;splashtop&quot;,&quot;ishowu&quot;],Wr=[&quot;virtual camera&quot;,&quot;virtual webcam&quot;,&quot;virtual device&quot;,&quot;virtual driver&quot;,&quot;webcammax capture&quot;,&quot;fake webcam&quot;,&quot;openni&quot;,&quot;sparkocam&quot;,&quot;ispy&quot;,&quot;vlc capture&quot;,&quot;ucanvcam&quot;,&quot;manycam&quot;,&quot;magiccamera&quot;,&quot;splitcam&quot;,&quot;ip camera&quot;,&quot;mjpeg camera&quot;,&quot;xsplitbroadcaster&quot;,&quot;scanner mouse&quot;,&quot;logmein&quot;,&quot;hava video device&quot;,&quot;hava remote video device&quot;,&quot;hava video crossbar&quot;,&quot;hava remote video crossbar&quot;,&quot;vmware&quot;,&quot;pg camera for windows store apps&quot;,&quot;pg splitter&quot;,&quot;cyberlink webcam splitter&quot;,&quot;hp webcam splitter&quot;,&quot;cyberlink web camera filter&quot;,&quot;vdp source&quot;,&quot;vixs puretv&quot;,&quot;dxtory video&quot;,&quot;hp web camera filter&quot;,&quot;airparrot&quot;,&quot;camera plus&quot;,&quot;asus virtual&quot;,&quot;virtualbox&quot;,&quot;corel camera&quot;,&quot;corelscreencapture&quot;,&quot;live! cam virtual&quot;,&quot;iglasses&quot;,&quot;bytescout&quot;,&quot;blackmagic&quot;,&quot;arcsoft&quot;,&quot;decklink video capture&quot;,&quot;camtwist&quot;,&quot;professional financial camera&quot;,&quot;decklink video capture&quot;,&quot;webcam sharing manager&quot;,&quot;srp5702&quot;,&quot;00) depth&quot;,&quot;00 depth&quot;,&quot;droidcam source 3&quot;,&quot;droidcam source 2&quot;,&quot;droidcam source 1&quot;,&quot;droidcam source mini (240p)&quot;,&quot;thinkvantage virtual camera&quot;,&quot;arcsoft webcam sharing manager&quot;,&quot;tridef smartcam&quot;,&quot;splashtop&quot;,&quot;ishowu&quot;,&quot;Hauppauge WinTV&quot;,&quot;snap camera&quot;,&quot;Snap Camera&quot;],Gr=[&quot;vmware&quot;,&quot;virtualbox&quot;,&quot;parallels access sound&quot;,&quot;parallels audio controller&quot;],Vr=[&quot;bytescout&quot;,&quot;blackmagic&quot;,&quot;professional financial camera&quot;,&quot;decklink video capture&quot;,&quot;hauppauge&quot;,&quot;nomachine&quot;,&quot;soundflower
 </code></pre>
 <p>I'm not sure if this is code for viewing the running procceses</p>
 <pre class="shell"><code>{state:1,openProcesses:[]});else if(2===n.Code)t({state:2,openProcesses:[]});else if(3===n.Code){var e={state:3,openProcesses:[]};if(n.Processes.length&gt;0)for(var r=0;r&lt;n.Processes.length;r++)e.openProcesses.push(n.Processes[r]);t(e)}else 4===n.Code&amp;&amp;t({state:4,openProcesses:[]})}):t({state:0,openProcesses:[]})}).catch(()=&gt;{t({state:0,openProcesses:[]}
 </code></pre>
-<p>Inside this file is code for tracking eye movement as well as extensions. The file Zrqw.js contains the code for managing tabs.</p>
-<h2 id="hiding-qemu-incomplete">Hiding Qemu [incomplete]</h2>
-<p>The software checks CPU information as well as the name of webcam and microphone. We'll passthrough our webcam and microphone directly. We'll set the CPU model to be the same as our host machine and disable the hypervisor bit from being advertised.</p>
+<p>Inside this file is code for tracking eye movement as well as
+extensions. The file Zrqw.js contains the code for managing tabs.</p>
+<h2 id="hiding-qemu-incomplete">## Hiding Qemu [incomplete]</h2>
+<p>The software checks CPU information as well as the name of webcam and
+microphone. We'll passthrough our webcam and microphone directly. We'll
+set the CPU model to be the same as our host machine and disable the
+hypervisor bit from being advertised.</p>
 <small><a href="/">Back to index</a><small>
 </body>
 </html>

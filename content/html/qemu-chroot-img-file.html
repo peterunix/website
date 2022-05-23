@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,17 +32,23 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#chrooting-into-systems-with-different-architectures">Chrooting into systems with different architectures</a>
+<li><a href="#chrooting-into-systems-with-different-architectures">#
+Chrooting into systems with different architectures</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#locating-the-start-of-a-partition">Locating the start of a partition</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#locating-the-start-of-a-partition">## Locating the start
+of a partition</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="chrooting-into-systems-with-different-architectures">Chrooting into systems with different architectures</h1>
-<h2 id="preface">Preface</h2>
-<p>Full disk images contain the bootloader and partition table. To mount an image file, we specify a <em>byte offset</em> that points to the beginning of our linux partition.</p>
-<h2 id="locating-the-start-of-a-partition">Locating the start of a partition</h2>
+<h1 id="chrooting-into-systems-with-different-architectures"># Chrooting
+into systems with different architectures</h1>
+<h2 id="preface">## Preface</h2>
+<p>Full disk images contain the bootloader and partition table. To mount
+an image file, we specify a <em>byte offset</em> that points to the
+beginning of our linux partition.</p>
+<h2 id="locating-the-start-of-a-partition">## Locating the start of a
+partition</h2>
 <p>Run <em>fdisk -l file.img</em>.</p>
 <pre class="shell"><code>[...]
 Units: sectors of 1 * 512 = 512 bytes
@@ -52,8 +62,10 @@ Device                                    Boot  Start     End Sectors  Size Id T
 <pre class="shell"><code>mount -o loop,offset=$((512*532480)),rw ~/2021-05-07-raspios-buster-armhf-lite.img /mnt
 </code></pre>
 <p><strong>-o</strong> Pass options to mount</p>
-<p><strong>loop</strong> Creates a psuedo block device to mount the image file to</p>
-<p><strong>offset=$((512*532480))</strong> Sets the offset to the sum of 512*startSector</p>
+<p><strong>loop</strong> Creates a psuedo block device to mount the
+image file to</p>
+<p><strong>offset=$((512*532480))</strong> Sets the offset to the sum of
+512*startSector</p>
 <p><strong>rw</strong> Enables reading and writing to the mountpoint</p>
 <small><a href="/">Back to index</a><small>
 </body>

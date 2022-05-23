@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,19 +32,24 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#nginx-with-php">Nginx with PHP</a>
+<li><a href="#nginx-with-php"># Nginx with PHP</a>
 <ul>
-<li><a href="#dependencies">Dependencies</a></li>
-<li><a href="#setting-up-php-and-nginx-services">Setting up php and nginx services</a></li>
-<li><a href="#adding-php-to-nginx">Adding PHP to nginx</a></li>
+<li><a href="#dependencies">## Dependencies</a></li>
+<li><a href="#setting-up-php-and-nginx-services">## Setting up php and
+nginx services</a></li>
+<li><a href="#adding-php-to-nginx">## Adding PHP to nginx</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="nginx-with-php">Nginx with PHP</h1>
-<h2 id="dependencies">Dependencies</h2>
-<p>$ apt install nginx php php-fpm</p>
-<h2 id="setting-up-php-and-nginx-services">Setting up php and nginx services</h2>
-<p>The cgi.fix_pathinfo variable tells PHP to attempt to execute the closest file it can find if the requested PHP file cannot be found. Let's set this variable to false.</p>
+<h1 id="nginx-with-php"># Nginx with PHP</h1>
+<h2 id="dependencies">## Dependencies</h2>
+<pre class="shell"><code>apt install nginx php php-fpm
+</code></pre>
+<h2 id="setting-up-php-and-nginx-services">## Setting up php and nginx
+services</h2>
+<p>The cgi.fix_pathinfo variable tells PHP to attempt to
+execute the closest file it can find if the requested PHP file cannot be
+found. Let's set this variable to false.</p>
 <pre class="shell"><code>vim /etc/php/7.3/fpm/php.ini
 
 # Edit this variable
@@ -49,7 +58,7 @@ cgi.fix_pathinfo=0
 systemctl start nginx php7.3-fpm
 systemctl enable nginx php7.3-fpm
 </code></pre>
-<h2 id="adding-php-to-nginx">Adding PHP to nginx</h2>
+<h2 id="adding-php-to-nginx">## Adding PHP to nginx</h2>
 <p>This goes in /etc/nginx/sites-enabled/WEBSITE</p>
 <pre class="shell"><code>server {
     listen 80 default_server;
@@ -76,7 +85,8 @@ systemctl enable nginx php7.3-fpm
 </code></pre>
 <p>References</p>
 <ol>
-<li><a href="/opt/webNew/index.php">file:///opt/webNew/index.php</a></li>
+<li><a
+href="/opt/webNew/index.php">file:///opt/webNew/index.php</a></li>
 </ol>
 <small><a href="/">Back to index</a><small>
 </body>

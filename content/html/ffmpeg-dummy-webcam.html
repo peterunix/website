@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,19 +32,29 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#setting-up-a-dummy-webcam-with-ffmpeg">Setting up a dummy webcam with FFMPEG</a>
+<li><a href="#setting-up-a-dummy-webcam-with-ffmpeg"># Setting up a
+dummy webcam with FFMPEG</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#installing-v4l2loopback-kernel-module">Installing v4l2loopback kernel module</a></li>
-<li><a href="#outputting-a-videoimage-to-the-dummy-cam">Outputting a video/image to the dummy cam</a></li>
-<li><a href="#outputting-existing-webcam-to-dummy-cam">Outputting existing webcam to dummy cam</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#installing-v4l2loopback-kernel-module">## Installing
+v4l2loopback kernel module</a></li>
+<li><a href="#outputting-a-videoimage-to-the-dummy-cam">## Outputting a
+video/image to the dummy cam</a></li>
+<li><a href="#outputting-existing-webcam-to-dummy-cam">## Outputting
+existing webcam to dummy cam</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="setting-up-a-dummy-webcam-with-ffmpeg">Setting up a dummy webcam with FFMPEG</h1>
-<h2 id="preface">Preface</h2>
-<p>I experienced my first proctored exam today. Being that I'm a technologist, I thought it'd be pretty fun to pre-record myself and have that recording output to a virtual webcam. Here's a not so descriptive guide on using ffmpeg with the v4l2loopback kernel module to create a virtual dummy webcam.</p>
-<h2 id="installing-v4l2loopback-kernel-module">Installing v4l2loopback kernel module</h2>
+<h1 id="setting-up-a-dummy-webcam-with-ffmpeg"># Setting up a dummy
+webcam with FFMPEG</h1>
+<h2 id="preface">## Preface</h2>
+<p>I experienced my first proctored exam today. Being that I'm a
+technologist, I thought it'd be pretty fun to pre-record myself and have
+that recording output to a virtual webcam. Here's a not so descriptive
+guide on using ffmpeg with the v4l2loopback kernel module to create a
+virtual dummy webcam.</p>
+<h2 id="installing-v4l2loopback-kernel-module">## Installing
+v4l2loopback kernel module</h2>
 <p>This module allows for the creation of virtual video devices.</p>
 <pre><code># Dependencies
 sudo apt install -y build-essential linux-headers-$(uname -r) v4l-utils help2man
@@ -57,16 +71,20 @@ sudo modprobe v4l2loopback
 # Testing. You should see &quot;Dummy video devices&quot;
 v4l2-ctl --list-device
 </code></pre>
-<h2 id="outputting-a-videoimage-to-the-dummy-cam">Outputting a video/image to the dummy cam</h2>
-<p>Subsitute /dev/video3 for whatever devices your dummy webcam is using.</p>
+<h2 id="outputting-a-videoimage-to-the-dummy-cam">## Outputting a
+video/image to the dummy cam</h2>
+<p>Subsitute /dev/video3 for whatever devices your dummy webcam is
+using.</p>
 <pre><code># For video
 ffmpeg -re -stream_loop -1 -i &quot;video.mp4&quot; -f v4l2 /dev/video3
 
 # For image
 ffmpeg -framerate 1 -loop 1 -re -i &quot;image.png&quot; -f v4l2 -vcodec rawvideo -pix_fmt yuv420p /dev/video3
 </code></pre>
-<h2 id="outputting-existing-webcam-to-dummy-cam">Outputting existing webcam to dummy cam</h2>
-<p>Useful if your virtual machine can't install the drivers for your webcam.</p>
+<h2 id="outputting-existing-webcam-to-dummy-cam">## Outputting existing
+webcam to dummy cam</h2>
+<p>Useful if your virtual machine can't install the drivers for your
+webcam.</p>
 <pre><code>ffmpeg -i &quot;/dev/video0&quot; -f v4l2 -vcodec rawvideo  /dev/video2
 </code></pre>
 <small><a href="/">Back to index</a><small>

@@ -4,16 +4,19 @@
 
   font-family: 'Terminess';
   src: url('/content/files/Fonts/terminess-nerd-font-complete.ttf');
+
+  font-family: 'ComicMono';
+  src: url('/content/files/Fonts/comicmono.ttf');
 }
 
 :root{
-    --font: SauceCodePro;
+    --font: ComicMono;
     --bg-color: #222222;
     --headline1-font-size: 36px;
     --headline-color: #db7093;
     --link-color: #db7093;
     --text-color: #fefefe;
-    --text-font-size: 23px;
+    --text-font-size: 20px;
     --code-font: Terminess;
     --code-color: #fefefe;
     --code-background: #333333;
@@ -38,6 +41,11 @@ body.index{
 
 body.index>h1, body.index>h2{
     text-align: center;
+}
+
+body.index>li{
+    list-style-type: circle;
+    padding: 5px 0px;
 }
 
 p{

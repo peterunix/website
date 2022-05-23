@@ -1,9 +1,9 @@
-* Setting up media wiki with offline wiki's
-** Preface
+* # Setting up media wiki with offline wiki's
+** ## Preface
 Here's how to download an offline copy of most wikipedias.
 I'll be using the wiki dump tools from https://github.com/WikiTeam/wikiteam to download them.
 
-** Installation
+** ## Installation
 Mediawiki sources
 #+begin_src shell
 apt install -y python-pip libxml2-dev libxslt1-dev
@@ -15,11 +15,11 @@ pip install lxml
 pip install --upgrade -r requirements.txt
 #+end_src
 
-** Offline wikipedia reader
+** ## Offline wikipedia reader
 apt install python3-pip
 pip3 install poetry
 poetry install --no-dev
-** Downloading a wiki
+** ## Downloading a wiki
 I'd suggest reading the github page for more examples
 
 https://github.com/WikiTeam/wikiteam

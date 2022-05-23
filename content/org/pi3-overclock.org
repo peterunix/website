@@ -1,5 +1,5 @@
-* Overclocking the Raspberry Pi Model 3b+
-** Preface
+* # Overclocking the Raspberry Pi Model 3b+
+** ## Preface
 You'll need a power supply for the raspberry pi as well as a fan for active cooling.
 Using a phone charger will not supply the board with enough power and will cause it to boot loop.
  

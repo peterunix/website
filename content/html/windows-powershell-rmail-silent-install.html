@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,18 +32,23 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#windows-powershell-rmail-silent-installer">Windows Powershell Rmail Silent Installer</a>
+<li><a href="#windows-powershell-rmail-silent-installer"># Windows
+Powershell Rmail Silent Installer</a>
 <ul>
-<li><a href="#preface">Preface</a></li>
-<li><a href="#the-script">The script</a></li>
-<li><a href="#important-notes">Important notes</a></li>
+<li><a href="#preface">## Preface</a></li>
+<li><a href="#the-script">## The script</a></li>
+<li><a href="#important-notes">## Important notes</a></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="windows-powershell-rmail-silent-installer">Windows Powershell Rmail Silent Installer</h1>
-<h2 id="preface">Preface</h2>
-<p>This downloads and installs Rmail for Outlook. It tries to detect the architecture you're using for Outlook. First it uninstalls it, next it removes all the Rmail configuration files, and finally it installs it</p>
-<h2 id="the-script">The script</h2>
+<h1 id="windows-powershell-rmail-silent-installer"># Windows Powershell
+Rmail Silent Installer</h1>
+<h2 id="preface">## Preface</h2>
+<p>This downloads and installs Rmail for Outlook. It tries to detect the
+architecture you're using for Outlook. First it uninstalls it, next it
+removes all the Rmail configuration files, and finally it installs
+it</p>
+<h2 id="the-script">## The script</h2>
 <pre class="shell"><code>Function _StopOutlookEXE{
     # Get&#39;s the process ID of Outlook, kills it, then waits for it to terminate
         $ids=(Get-Process -Name outlook*).id
@@ -110,8 +119,10 @@ Function _Main{
     _InstallRmail
 }
 </code></pre>
-<h2 id="important-notes">Important notes</h2>
-<p>This DOES remove the %appdata%/Rmail/settings.json file. Comment out that line if you don't want it removed. That file is automatically regenerated if it doesn't exist.</p>
+<h2 id="important-notes">## Important notes</h2>
+<p>This DOES remove the %appdata%/Rmail/settings.json file. Comment out
+that line if you don't want it removed. That file is automatically
+regenerated if it doesn't exist.</p>
 <small><a href="/">Back to index</a><small>
 </body>
 </html>

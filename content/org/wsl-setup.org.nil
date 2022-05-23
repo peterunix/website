@@ -1,5 +1,5 @@
-* Setting up WSL
-** Installing the windows features
+* # Setting up WSL
+** ## Installing the windows features
 Enable the WSL feature as well has the VM Platform feature
 
 #+begin_src shell
@@ -8,16 +8,16 @@ dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /nores
 Restart-Computer
 #+end_src shell
 
-** WSL Kernel Update
+** ## WSL Kernel Update
 This kernel update is required for WSL version 2
 
 https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi
 
-** Using WSL
+** ## Using WSL
 #+begin_src shell
 wsl --set-default-version 2
 wsl --install -d Ubuntu
 #+end_src shell
 
-** Done
+** ## Done
 Ubuntu Linux using WSLv2 is now installed. Use GWSL for running graphical linux applications.

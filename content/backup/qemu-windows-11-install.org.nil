@@ -1,0 +1,92 @@
+* Running Windows 11 in Qemu
+** Preface
+Here's my simplified guide to running Windows 11 in qemu. I'm primarly citing 
+[[https://macroform-node.medium.com/building-a-windows-11-vm-with-qemu-using-tpm-emulation-for-research-malware-analysis-part-1-8846378b9582][this page]]. Windows 11 requires the device have a TPM chip, UEFI that supports secure boot, and a newer generation CPU. We'll be emulating all of these.
+
+It would have saved me a lot of time to learn that Windows 11 doesn't require secure boot; It only requires the UEFI to support it.
+
+** Requirements
+*** Download Windows 11
+[[https://www.microsoft.com/en-us/software-download/windows11?ranMID=24542&ranEAID=kXQk6*ivFEQ&ranSiteID=kXQk6.ivFEQ-z6VZ_S.9XvSwMlrNbmrl1g&epi=kXQk6.ivFEQ-z6VZ_S.9XvSwMlrNbmrl1g&irgwc=1&OCID=AID2200057_aff_7593_1243925&tduid=%28ir__3ovxje66bokf6ygeyqg2uahdav2xo0ah06xerlg600%29%287593%29%281243925%29%28kXQk6.ivFEQ-z6VZ_S.9XvSwMlrNbmrl1g%29%28%29&irclickid=_3ovxje66bokf6ygeyqg2uahdav2xo0ah06xerlg600][Windows 11 iso]]
+*** Installing swtpm (software tpm)
+We can use swtpm to create an emulated TPM device. You can either compile it by following their [[https://github.com/stefanberger/swtpm/wiki][wiki page]] or download the the precompiled binaries [[https://salsa.debian.org/nchevsky/swtpm/-/releases/debian%252F0.6.0-1.0][here]]
+
+The prebuilt debian binaries are outdated but worked for me.
+
+#+begin_src
+wget 'http://oss.blazis.com/swtpm/swtpm-libs_0.6.0-1.0_amd64.deb'
+wget 'http://oss.blazis.com/swtpm/swtpm_0.6.0-1.0_amd64.deb'
+
+dpkg -i swtpm-libs_0.6.0-1.0_amd64.deb
+dpkg -i http://oss.blazis.com/swtpm/swtpm_0.6.0-1.0_amd64.deb
+#+end_src
+*** Installing dependencies
+The ovmf package contains a UEFI firmware that we'll be using
+#+begin_src
+apt install -y qemu ovmf
+#+end_src
+
+** Installing Windows 11
+*** Starting the emulated TPM
+The swtpm socket has to be running before the virtual machine is started
+#+begin_src shell
+mkdir -p /tmp/emulated_tpm
+sudo swtpm socket --tpmstate dir=/tmp/emulated_tpm --ctrl type=unixio,path=/tmp/emulated_tpm/swtpm-sock --log level=20 --tpm2
+#+end_src
+
+*** Running with Qemu
+The majority of this is copied from the page I linked earlier.
+Many of the options (i.e adding a soundcard) are included to make the computer look legitimate.
+It might be redundant, but I'll include those lines anyways.
+
+#+begin_src shell
+# Creating the win10 virtual drive
+qemu-img create -F qcow2 win11.qcow2 20G
+
+sudo qemu-system-x86_64 \
+-enable-kvm \
+-cpu Skylake-Client-v3 \
+--machine pc-q35-2.5 \
+-m 4096 \
+-cdrom win11.iso \
+-usb \
+-smp cores=2,threads=4  \
+-device intel-hda -device hda-duplex -usb \
+-chardev socket,id=chrtpm,path=/tmp/emulated_tpm/swtpm-sock \
+-tpmdev emulator,id=tpm0,chardev=chrtpm -device tpm-tis,tpmdev=tpm0 \
+-nic user,ipv6=off,model=rtl8139,mac=84:1b:77:c9:03:a6 \
+-global driver=cfi.pflash01,property=secure,value=on  \
+-drive file=win11.qcow2,format=qcow2 \
+-bios /usr/share/ovmf/OVMF.fd
+#+end_src
+
+*-enable-kvm* Enable the KVM hypervisor
+
+*-cpu Skylake-Client-v3* CPU model to use 
+
+*--machine pc-q35-2.5* Machine type to use. This likely isn't necessary. I included it while following a separate guide for enabling secure boot. [[https://wiki.debian.org/SecureBoot/VirtualMachine#Updates_on_November_2020_.28Debian_Bullseye_is_assumed.29][link]]
+
+*-m 4096* Memory to allocate.
+
+*-cdrom win11.iso* Adding the downloaded ISO as a cdrom device.
+
+*-boot d* Boot from cdrom
+
+*-usb* Adding a USB host controller. This is done for cosmetics.
+
+*-smp cores=2,threads=4* Giving the VM two cores and four threads. Allocating too little processing power will cause the installer to hang.
+
+*-device intel-hda -device hda-duplex* Adding an intel soundcard device. Cosmetic.
+
+*-chardev socket[...] -tpmdev [...]* Passing a character device (swtpm) to the VM
+
+*-nic user,ipv6=off[...]* Adding a network card with a realistic model and MAC. Cosmetic.
+
+*-global driver=[...]* Likely not necessary. I copied it from the Debian wiki for secureboot VM's
+
+*-drive file=Win11.qcow2,format=qcow2* Our virtual drive that windows will be installed to
+
+*-bios /usr/share/ovmf/OVMF.fd* Use the qemu uefi firmware to boot 
+
+** Conclusion
+You'll have to play around with the qemu VGA card settings and drivers to be able to change the resolution [[https://www.kraxel.org/blog/2019/09/display-devices-in-qemu/][link]]. That's all, folks. 

@@ -1,12 +1,12 @@
-* Installing Netbsd on the Pinebook Pro
-** Preface
+* # Installing Netbsd on the Pinebook Pro
+** ## Preface
 I'm going to assume that you've already copied the [1]netbsd image to
 your device and have booted into your system. If you have problems
 booting from the microsd card, try disabling the emmc chip. It used to
 be the case that you were only able to boot from microsd if the chip
 was disabled. I'm not sure if this was fixed.
 
-** Configuring Network
+** ## Configuring Network
 
 There are two ways of doing this:
 1. Manually configuring wpa_supplicant
@@ -50,7 +50,7 @@ network={
 /etc/rc.d/wpa_supplicant start
 #+end_src
 
-** Configuring package manager
+** ## Configuring package manager
 Netbsd has a commented URL for downloading binary packages in
 ~/.profile. Let's uncomment it
 
@@ -80,7 +80,7 @@ Fortunatley this is pretty simple.
 $ echo $PKG_PATH > /usr/pkg/etc/pkgin/repositories.conf
 #+end_src
 
-** Installing a desktop enviroment
+** ## Installing a desktop enviroment
 
 #+begin_src shell
 pkgin install xfce4 xinit

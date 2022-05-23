@@ -12,8 +12,12 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <link rel="stylesheet" href="../stylesheet/style.css" />
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 <!DOCTYPE html>
@@ -28,25 +32,44 @@
 </header>
 <nav id="TOC" role="doc-toc">
 <ul>
-<li><a href="#creating-viewing-and-parsing-a-storport-driver-trace">Creating, Viewing, and Parsing a Storport Driver Trace</a>
+<li><a href="#creating-viewing-and-parsing-a-storport-driver-trace">#
+Creating, Viewing, and Parsing a Storport Driver Trace</a>
 <ul>
-<li><a href="#creating-a-storport-trace-using-logman.exe">Creating a StorPort trace using logman.exe</a></li>
-<li><a href="#viewing-the-trace-data-event-viewer-method">Viewing the trace data (Event Viewer Method)</a></li>
-<li><a href="#viewing-the-trace-data-storportpacman.ps1-method">Viewing the trace data (StorportPACMAN.ps1 Method)</a>
+<li><a href="#creating-a-storport-trace-using-logman.exe">## Creating a
+StorPort trace using logman.exe</a></li>
+<li><a href="#viewing-the-trace-data-event-viewer-method">## Viewing the
+trace data (Event Viewer Method)</a></li>
+<li><a href="#viewing-the-trace-data-storportpacman.ps1-method">##
+Viewing the trace data (StorportPACMAN.ps1 Method)</a>
 <ul>
-<li><a href="#downloading-the-script">Downloading the script</a></li>
-<li><a href="#preparing-our-storport.etl-file">Preparing our storport.etl file</a></li>
-<li><a href="#running-the-script">Running the script</a></li>
+<li><a href="#downloading-the-script">### Downloading the
+script</a></li>
+<li><a href="#preparing-our-storport.etl-file">### Preparing our
+storport.etl file</a></li>
+<li><a href="#running-the-script">### Running the script</a></li>
 </ul></li>
 </ul></li>
 </ul>
 </nav>
-<h1 id="creating-viewing-and-parsing-a-storport-driver-trace">Creating, Viewing, and Parsing a Storport Driver Trace</h1>
-<h2 id="creating-a-storport-trace-using-logman.exe">Creating a StorPort trace using logman.exe</h2>
-<p>LOGMAN.EXE is CLI utility for creating data collector sets. A data collector set can be thought of as a container for choosing which performance counters or trace events to log. All the logged data from the data collector will be stored in a single file.</p>
-<p>A performance counter provides high-level, numeric, metrics for system behavior. There are performance counters for CPU utilization, search indexing, disk utilization, processes, etc. It provides general information on how parts of your computer are behaving.</p>
-<p>Traces events are low-level events that get reported when something <em>note worthy</em> happens with a system component or application. The Windows kernel may report each time a DLL is loaded, unloaded, a process starts/stops, etc. In this case, the StorPort driver trace reports things like latency, byte length, IO return codes, etc.</p>
-<p>Everything we're doing here can be done through the PERFMON.EXE GUI</p>
+<h1 id="creating-viewing-and-parsing-a-storport-driver-trace">#
+Creating, Viewing, and Parsing a Storport Driver Trace</h1>
+<h2 id="creating-a-storport-trace-using-logman.exe">## Creating a
+StorPort trace using logman.exe</h2>
+<p>LOGMAN.EXE is CLI utility for creating data collector sets. A data
+collector set can be thought of as a container for choosing which
+performance counters or trace events to log. All the logged data from
+the data collector will be stored in a single file.</p>
+<p>A performance counter provides high-level, numeric, metrics for
+system behavior. There are performance counters for CPU utilization,
+search indexing, disk utilization, processes, etc. It provides general
+information on how parts of your computer are behaving.</p>
+<p>Traces events are low-level events that get reported when something
+<em>note worthy</em> happens with a system component or application. The
+Windows kernel may report each time a DLL is loaded, unloaded, a process
+starts/stops, etc. In this case, the StorPort driver trace reports
+things like latency, byte length, IO return codes, etc.</p>
+<p>Everything we're doing here can be done through the PERFMON.EXE
+GUI</p>
 <pre class="shell"><code># Creating the TraceLog
 LOGMAN.EXE create trace &quot;storport&quot; -ow -o c:\PerfLogs\storport.etl -p &quot;Microsoft-Windows-StorPort&quot; 0xffffffffffffffff 0xff -nb 16 16 -bs 1024 -mode Circular -f bincirc -max 512 -ets
 
@@ -62,19 +85,29 @@ LOGMAN.EXE stop storport -ets
 <p><strong>HexCodes</strong> TODO</p>
 <p><strong>-nb</strong> Number of event trace buffers</p>
 <p><strong>-bs</strong> Event trace buffer size</p>
-<p><strong>-mode Circular</strong> The event trace logger mode. Circular means the log file overwrites the oldest data constantly.</p>
-<p><strong>-f bincirc</strong> Log format. We're using the circular binary format</p>
+<p><strong>-mode Circular</strong> The event trace logger mode. Circular
+means the log file overwrites the oldest data constantly.</p>
+<p><strong>-f bincirc</strong> Log format. We're using the circular
+binary format</p>
 <p><strong>-max 512</strong> The max size in megabytes.</p>
-<p><strong>-ets</strong> Send commands to Event Trace Sessions directly without saving or scheduling.</p>
-<h2 id="viewing-the-trace-data-event-viewer-method">Viewing the trace data (Event Viewer Method)</h2>
-<p>We used LOGMAN to create a trace log and store the output to C:/PerfLogs/storport.etl. Here's how you can open the file with Eventviewer</p>
+<p><strong>-ets</strong> Send commands to Event Trace Sessions directly
+without saving or scheduling.</p>
+<h2 id="viewing-the-trace-data-event-viewer-method">## Viewing the trace
+data (Event Viewer Method)</h2>
+<p>We used LOGMAN to create a trace log and store the output to
+C:/PerfLogs/storport.etl. Here's how you can open the file with
+Eventviewer</p>
 <ul>
 <li>Open EventViewer</li>
 <li>Click Action&gt;OpenSavedLog</li>
-<li>Navigate to your storport.etc file, open it, and click the option to copy the data to an event log.</li>
+<li>Navigate to your storport.etc file, open it, and click the option to
+copy the data to an event log.</li>
 <li>Click on any log and select the "Details" tab</li>
 </ul>
-<p>The event property you're looking for is "RequestDuration_100ns". This is the TODOTODOTODO. The measurement is done in nano-seconds. To convert it to milliseconds, divide the value by 10,000</p>
+<p>The event property you're looking for is
+"RequestDuration_100ns". This is the TODOTODOTODO. The
+measurement is done in nano-seconds. To convert it to milliseconds,
+divide the value by 10,000</p>
 <pre class="shell"><code># 22860ns is equal to 22ms
 + System 
 - EventData 
@@ -96,10 +129,14 @@ LOGMAN.EXE stop storport -ets
 <p>Less than 15ms = Good Performance</p>
 <p>Less than 25ms = Normal</p>
 <p>More than 25ms = Poor Performance</p>
-<h2 id="viewing-the-trace-data-storportpacman.ps1-method">Viewing the trace data (StorportPACMAN.ps1 Method)</h2>
-<h3 id="downloading-the-script">Downloading the script</h3>
-<p>StorportPacman.PS1 is a powershell script written by Paul Reynolds at Microsoft. It parses the STORPORT.ETL file into an organized, human readable, CSV file.</p>
-<p>For archival purposes, I'm including a full copy and paste of it here.</p>
+<h2 id="viewing-the-trace-data-storportpacman.ps1-method">## Viewing the
+trace data (StorportPACMAN.ps1 Method)</h2>
+<h3 id="downloading-the-script">### Downloading the script</h3>
+<p>StorportPacman.PS1 is a powershell script written by Paul Reynolds at
+Microsoft. It parses the STORPORT.ETL file into an organized, human
+readable, CSV file.</p>
+<p>For archival purposes, I'm including a full copy and paste of it
+here.</p>
 <pre class="shell"><code>#StorportPACMAN ported to Windows Powershell
 #Paul Reynolds PaulRey@microsoft.com -&gt; Improvements: Robin Hermann (RHE)
 #version 1.1 updated for 2012 R2
@@ -388,17 +425,30 @@ Function Convert-ETWTraceToReadableFileCSV {
     }
 }
 </code></pre>
-<h3 id="preparing-our-storport.etl-file">Preparing our storport.etl file</h3>
-<p>We have to use XPerf.exe to convert the ETL file into a CSV before we sort it with StorportPacman.ps1. Download the Windows Performance Toolkit from <a href="https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install">this Windows ADK link</a>.</p>
-<p>Once the toolkit is installed, convert the storport.etl file to a CSV</p>
+<h3 id="preparing-our-storport.etl-file">### Preparing our storport.etl
+file</h3>
+<p>We have to use XPerf.exe to convert the ETL file into a CSV before we
+sort it with StorportPacman.ps1. Download the Windows Performance
+Toolkit from <a
+href="https://docs.microsoft.com/en-us/windows-hardware/get-started/adk-install">this
+Windows ADK link</a>.</p>
+<p>Once the toolkit is installed, convert the storport.etl file to a
+CSV</p>
 <pre class="shell"><code>xperf -i C:\Perflogs\storport.ETL -o C:\Perflogs\raw-xperf.csv -tle
 </code></pre>
-<p>Now finally download the PowerPivot Excel templates from <a href="/content/files/Storport/Storport_Excel_PowerPivot-Templates.zip">my website</a> or from <a href="http://wiki.webperfect.ch/index.php?title=Datei:Storport_Excel_PowerPivot-Templates.zip">wiki.webperfect.ch</a></p>
-<h3 id="running-the-script">Running the script</h3>
-<p>Copy and paste the script into a ps1 file. Next, import it using this command</p>
+<p>Now finally download the PowerPivot Excel templates from <a
+href="/content/files/Storport/Storport_Excel_PowerPivot-Templates.zip">my
+website</a> or from <a
+href="http://wiki.webperfect.ch/index.php?title=Datei:Storport_Excel_PowerPivot-Templates.zip">wiki.webperfect.ch</a></p>
+<h3 id="running-the-script">### Running the script</h3>
+<p>Copy and paste the script into a ps1 file. Next, import it using this
+command</p>
 <pre class="shell"><code>Import-Module -Name ./StorportPacman.ps1
 </code></pre>
-<p>Now lets run the script. The name of your raw-xperf.csv file is important. Unless changed, raw-xperf.csv is the default filename the script looks for The filenames of the PowerPivot templates are sensitive too.</p>
+<p>Now lets run the script. The name of your raw-xperf.csv file is
+important. Unless changed, raw-xperf.csv is the default filename the
+script looks for The filenames of the PowerPivot templates are sensitive
+too.</p>
 <pre class="shell"><code># Remember to keep the xlsx and raw-xperf.csv files in the the same folder
 Convert-ETWTraceToReadableFileCSV -WorkFolderPath C:\PerfLogs\
 </code></pre>

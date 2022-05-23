@@ -1,0 +1,31 @@
+* Windows Outlook won't open when clicked
+** The Problem.
+Clicking on Outlook appears to do nothing.
+This is almost always caused by the OUTLOOK.EXE process being stuck in the background.
+The simpliest solution is to kill the processes using the Task Manager.
+This isn't the most convient solution if Outlook get's stuck constantly.
+
+There's two quick ways of fixing it.
+Option 1 involves a batch script to kill OUTLOOK.EXE.
+Option 2 involves creating an Outlook shortcut that kills and starts the process.
+
+** Solution 1 (eh)
+Create a batch script that kills the processes on click.
+
+#+begin_src shell
+C:\Windows\System32\taskkill.exe /im outlook.exe /f
+#+end_src
+
+** Solution 2 (prettier)
+Create a shortcut for Outlook.
+Modify the properties of the shortcut and add this line to the "TARGET" field.
+
+#+begin_src shell
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -command "Stop-Process -Name 'outlook' ; Start-Process 'C:\Program Files (x86)\Microsoft Office\root\Office16\OUTLOOK.EXE'"
+#+end_src
+
+This'll use powershell to kill the previous outlook.exe process and start a new one.
+It works beautifully and you'd hardly notice a difference.
+
+Make sure the outlook.exe path is the same for your PC.
+You should also set the icon for the shortcut to Outlooks.

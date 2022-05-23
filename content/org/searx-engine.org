@@ -1,4 +1,4 @@
-* Setting searx as the default search engine
+* # Setting searx as the default search engine
 
 You can change the default search engine on chromium easily.
 With firefox you have to install a third party plugin for it.
