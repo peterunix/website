@@ -3,7 +3,7 @@
 Full disk images contain the bootloader and partition table.
 To mount an image file, we specify a /byte offset/ that points to the beginning of our linux partition.
 
-** ## Locating the start of a partition
+** ## Mounting the image
 Run /fdisk -l file.img/.
 #+begin_src shell
 [...]
@@ -28,3 +28,15 @@ mount -o loop,offset=$((512*532480)),rw ~/2021-05-07-raspios-buster-armhf-lite.i
 *offset=$((512*532480))* Sets the offset to the sum of 512*startSector
 
 *rw* Enables reading and writing to the mountpoint
+
+** ## Chrooting
+You'll need to install the qemu-user-static package for your distribution.
+After it's installed, you can copy the /usr/bin/qemu-*-static binary into the bin folder of our mounted image file.
+I'm chrooting into an ARM image so I'll use the binary for ARM.
+
+#+begin_src shell
+paru -S --noconfirm qemu-user-static-bin arch-install-scripts
+
+cp /usr/bin/qemu-arm-static /mnt/usr/bin
+arch-chroot /mnt/ qemu-arm-static /bin/bash
+#+end_src

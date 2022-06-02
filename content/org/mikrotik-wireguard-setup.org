@@ -1,0 +1,109 @@
+* # Setting up Wireguard on a Mikrotik Router
+** ## Preface
+As I setup my own Mikrotik HEX S router, I'm documenting my process of setting up Wireguard on it
+** ## Server Setup
+I have a Netgear router that I use at home.
+The idea is to have the Mikrotik function only as a VPN.
+I already disabled DHCP and have the Mikrotik plugged from LAN port 1 to the back of my NetGear router.
+
+I'm setting the IP address of ETHER1 statically and outside my DHCP range.
+
+#+begin_src shell
+/ip address add address=192.168.0.2 interface=ether1 network=192.168.1.0 netmask=255.255.255.0
+#+end_src
+
+Next I'll create the wireguard interface.
+I set the listening port to 51820, which is the default the wireguard devs set.
+If I recall correctly, Mikrotik uses a non-default port for this.
+The maximum transmission unit (MTU) is set to 1420.
+This is the default value when creating a wireguard interface from the GUI.
+
+#+begin_src shell
+/interface/wireguard/add listen-port=51820 mtu=1420 name=wireguard1
+#+end_src
+
+Our Wireguard public and private keys are automatically generated when creating the interface.
+I'll print them out and save them for a later step during the process.
+
+#+begin_src shell
+/interface/wireguard/print
+[...] private-key="fasldkclksjckj"
+[...] public-key="vxcihlvflqwjase"
+#+end_src
+
+Now I'll bind the wireguard interface to an IP address.
+The subnet should be unique, as it will only be for clients connected to the VPN.
+T
+#+begin_src shell
+/ip/address/add address=192.168.10.1/24 interface=wireguard1 network=192.168.10.0
+#+end_src
+
+That's all we need when configuring the wireguard server.
+I'll add a firewall rule to whitelist wireguard and then move on to adding clients.
+
+#+begin_src shell
+/ip/firewall/filter/add action=accept chain=input dst-port=51820 protocol=udp
+#+end_src
+
+** ## Client Setup
+First we have to generate a private and public key on the client computer (aka my laptop).
+I downloaded the wireguard tools from the arch repositories for this.
+
+#+begin_src shell
+pacman -S wireguard-tools
+#+end_src
+
+Running these commands, I was able to quickly generate them
+
+#+begin_src shell
+wg genkey > privkey.txt
+wg pubkey < privkey.txt > pubkey.txt
+
+cat privkey.txt
+[...]alsdfkjsaldfjlsadkfjlsfj
+cat pubkey.txt
+[...]hckjhe10dlakj
+#+end_src
+
+Having made note of the clients public key, I was able to add them on the Mikrotik.
+I'm allowing my laptop to have the address 192.168.10.100/32 on the VPN.
+It'll also be able to communicate on the entire 192.168.1.0/24 subnet
+
+
+#+begin_src shell
+/interface/wireguard/peers/add allowed-address=192.168.10.100/32,192.168.1.0/24 interface=wireguard1 public-key="CLIENT-PUB-KEY"
+#+end_src
+
+
+The last step was to create a wireguard configuration file for my laptop.
+Copy this template and substitute the address, dns, privatekey, endpoint, and server public key.
+
+[Interface]
+Address = 192.168.98.100/32
+DNS = 192.168.1.10 1.1.1.1
+PrivateKey = CLIENT-PRIV-KEY
+[Peer]
+AllowedIPs = 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+Endpoint = EXTERNAL_IP_GOES_HERE:51820
+PublicKey = SERVER-PUB-KEY
+
+#+begin_comment
+SERVER:
+    private-key="ECLOvWbw3DU/jFsbPZYhwr/i6PVyt3idT90c8kqTxHs=" 
+    public-key="73I+fKKO+tHIQsAUL/EEu5x66fstwYow4fe33rvdflA="
+
+CLIENT:
+    private-key=0GCDIPIIBGh0560Nl0SVfvUW28Yue4PZ/q72W0UvmWE=
+    public-key=eQMFycaySh5OtX+jjUegn4sj9+T8wcgn42FUPkppVT8=
+
+/interface/wireguard/peers/add allowed-address=192.168.10.100/32,192.168.1.0/24 interface=wireguard1 public-key="eQMFycaySh5OtX+jjUegn4sj9+T8wcgn42FUPkppVT8="
+
+[Interface]
+Address = 192.168.98.100/32
+DNS = 192.168.1.10 1.1.1.1
+PrivateKey = 0GCDIPIIBGh0560Nl0SVfvUW28Yue4PZ/q72W0UvmWE=
+[Peer]
+AllowedIPs = 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+Endpoint = 67.169.181.153:51820
+PublicKey = 73I+fKKO+tHIQsAUL/EEu5x66fstwYow4fe33rvdflA=
+#+end_comment
