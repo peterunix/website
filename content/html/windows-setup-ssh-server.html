@@ -78,9 +78,9 @@ if (!(Get-NetFirewallRule -Name &quot;OpenSSH-Server-In-TCP&quot; -ErrorAction S
 <h2 id="enforcing-pubkey-authentication">## Enforcing PubKey
 Authentication</h2>
 <p>If you're remoting into a non-administrative user, you can place
-yourpub keys in %userprofile%\.ssh_keys.</p>
-<p>Users that are a part of the "Administrators" group read need their
-public keys in this file:</p>
+yourpub keys in %userprofile%/.ssh/authorize_keys.</p>
+<p>Users that are a part of the "Administrators" group need their public
+keys in this file:</p>
 <pre><code>%ProgramData%\ssh\administrators_authorized_keys
 </code></pre>
 <p>The "administrators_authorizedkeys" file must only have
@@ -110,10 +110,10 @@ You can set it to third party shells like Cygwin.bat, git bash, etc.</p>
 New-ItemProperty -Path &quot;HKLM:\SOFTWARE\OpenSSH&quot; -Name DefaultShell -Value &quot;C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe&quot; -PropertyType String -Force
 
 # Default to Git Bash
-New-ItemProperty -Path &quot;HKLM:\SOFTWARE\OpenSSH&quot; -Name DefaultShell -Value &quot;C:\cygwin64\Cygwin.bat&quot; -PropertyType String -Force
+New-ItemProperty -Path &quot;HKLM:\SOFTWARE\OpenSSH&quot; -Name DefaultShell -Value &quot;C:\Program Files\Git\bin\bash.exe&quot; -PropertyType String -Force
 
 # Default to Cygwin
-New-ItemProperty -Path &quot;HKLM:\SOFTWARE\OpenSSH&quot; -Name DefaultShell -Value &quot;C:\Program Files\Git\bin\bash.exe&quot; -PropertyType String -Force
+New-ItemProperty -Path &quot;HKLM:\SOFTWARE\OpenSSH&quot; -Name DefaultShell -Value &quot;C:\cygwin64\Cygwin.bat&quot; -PropertyType String -Force
 </code></pre>
 <small><a href="/">Back to index</a><small>
 </body>
